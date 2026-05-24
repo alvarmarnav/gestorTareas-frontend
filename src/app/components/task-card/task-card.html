@@ -1,35 +1,16 @@
-<div class="border rounded-lg shadow p-4 mb-3 bg-white">
-<div class="card-body">
-<!-- Cabecera: título y tipo -->
-<div class="flex justify-between items-center mb-2">
-<h3 class="text-base font-semibold m-0">{{ task.title }}</h3>
-@switch (task.type) {
-@case ('Simple') {
-<span class="px-2 py-1 text-xs font-medium bg-blue-600 text-white rounded">Simple</span>
-}
-@case ('Recurrente') {
-<span class="px-2 py-1 text-xs font-medium bg-gray-600 text-white rounded">Recurrente</span>
-} }
-</div>
-<!-- Metadatos: usuario y fecha -->
-<div class="flex justify-between items-center text-gray-500 text-sm">
-<span class="text-muted small">{{ task.userName }}</span>
-@if (task.dueTime) {
-<span class="text-muted small">{{ task.dueTime }}</span>
-}
-</div>
-<!-- Footer: estado y acciones -->
-<div class="flex justify-between items-center mt-3">
-@if (task.isCompleted) {
-<span class="px-2 py-1 text-xs font-medium bg-green-600 text-white rounded">Completada</span>
-} @else {
-<span class="px-2 py-1 text-xs font-medium bg-yellow-400 text-black rounded">Pendiente</span>
-}
-<div class="flex gap-2">
-<button class="px-3 py-1 text-sm bg-green-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
-[disabled]="task.isCompleted">
-Completar
-</button>
-<button class="px-3 py-1 text-sm bg-red-600 text-white rounded">Eliminar</button>
-</div>
-</div>
+<!-- component -->
+<main class="flex items-center justify-center py-10">
+  <section class="bg-white w-1/2 space-y-3 px-6 py-4 rounded-3xl shadow-lg border flex flex-col">
+    <img src="https://tailwindui.com/img/components/home-screens.02-card-layout-with-sidebar-xl.png" class="w-full h-32 object-cover rounded-xl hover:filter hover:brightness-75 transition" />
+    <div class="flex justify-between items-center">
+      <h3 class="font-semibold">Presentation for MARS company</h3>
+      <div class="font-extrabold">...</div>
+    </div>
+    <ul class="flex space-x-2">
+      <li class="bg-blue-400 text-white text-md px-4 rounded-3xl">iOS App</li>
+      <li class="bg-green-400 text-white text-md px-4 rounded-3xl">Android</li>
+    </ul>
+    <div class="text-gray-600 font-light">Request content for presentation from the Product Manager. Get it done by Wednesday so that it can be presented in the meetings with VC capitalists.</div>
+    <button class="bg-gray-800 text-white py-1 rounded-2xl">MARK DONE</button>
+  </section>
+</main>

@@ -34,15 +34,13 @@ this.daysToEnd=Math.ceil((lastDate.getTime()-today.getTime())/(1000 * 60 * 60 * 
   }
   // @Output() — emite un evento al padre cuando se completa la tarea
 // EventEmitter<number> indica que el evento lleva un número (el id)
-@Output() completTask = new EventEmitter<TaskdtoModel>();
+@Output() completTask = new EventEmitter<number>();
 // @Output() — emite un evento al padre cuando se elimina la tarea
 @Output() deleteTask = new EventEmitter<number>();
 // Método que se llama al hacer clic en "Completar"
 onCompleteTask(): void {
 // emit() dispara el evento y pasa el id al padre
- //this.completTask.emit(this.task.id);
-
-this.completTask.emit({...this.task, isCompleted: true });
+this.completTask.emit(this.task.id);
 }
 // Método que se llama al hacer clic en "Eliminar"
 onDeleteTask(): void {

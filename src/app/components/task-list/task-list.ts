@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, OnChanges, OnDestroy, OnInit, signal, SimpleChanges } from '@angular/core';
 import { TaskCard } from '../task-card/task-card';
 import { TaskdtoModel } from '../../models/taskdto.model';
 import { Subscription } from 'rxjs';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-task-list',
@@ -10,7 +11,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './task-list.html',
   styleUrl: './task-list.css',
 })
-export class TaskList implements OnInit,OnDestroy {
+export class TaskList implements OnInit,OnDestroy,OnChanges {
   // tasks: TaskdtoModel[] = [];
   tasks = signal<TaskdtoModel[]>([]);
   private subscription?:Subscription;
@@ -22,52 +23,30 @@ export class TaskList implements OnInit,OnDestroy {
   constructor() {
     // Solo para inyectar dependencias
     // Los @Input() aún no tienen valor aquí
+    
   }
-ngOnInit(): void {
-  this.loadTasks();
+  private taskService= inject(TaskService);
+
+  ngOnInit(): void {
+  console.log('Componente inicializado');
   this.timer = setInterval(() => {
     console.log('Comprobando tareas...');
   }, 5000);
-  
 }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    throw new Error('Method not implemented.');
+  }
+
+
 onComplete(id:number):void{
-  this.tasks.update(tasks=>tasks
-    .map(t=>t.id === id ? {...t,isCompleted:true}:t));
+ this.taskService.complete(id);
 }
 
 onDelete(id:number):void{
-  this.tasks.update(tasks=>tasks.filter(t=>t.id !== id));
+  this.taskService.delete(id);
 }
 
-private loadTasks():void{
-  this.tasks=[
-      {id: 1,
-      title: 'Preparar informe trimestral',
-      isCompleted: false,
-      dueTime: '2025-06-30',
-      userName: 'Ana García',
-      type: 'Simple',
-    },
-    {
-      id: 2,
-      title: 'Revisión semanal de backlog',
-      isCompleted: true,
-      dueTime: null,
-      userName: 'Carlos López',
-      type: 'Recurrente',
-    },
-    {
-      id: 3,
-      title: 'Revisión semanal de backlog',
-      isCompleted: true,
-      dueTime: null,
-      userName: 'Carlos López',
-      type: 'Recurrente',
-    }
-  ]
-  
-}
 ngOnDestroy(): void {
   if(this.timer){
     clearInterval(this.timer);
