@@ -1,4 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TaskService } from '../../services/task.service';
+import { CreateTaskDto } from '../../models/create-task-dto.model';
+import { FormBuilder, Validators,ReactiveFormsModule,FormArray,FormControl } from '@angular/forms';
+import { futureDateValidator } from '../../core/validators/future-date-validator.validator';
 
 @Component({
   selector: 'app-create-task',
@@ -31,11 +36,11 @@ ngOnInit(): void {
 const id = this.route.snapshot.paramMap.get('id');
 if (id) {
 this.taskId = Number(id);
-this.taskService.obtenerTareaPorId(this.taskId)
+this.taskService.getTaskById(this.taskId)
 .subscribe(task => {
 this.form.patchValue({
 title: task.title,
-description: task.description ?? '',
+description: task.taskDescription ?? '',
 dueTime: task.dueTime,
 type: task.type,
 userId: task.userId
@@ -48,12 +53,10 @@ onSubmit(): void {
 if (this.form.invalid) return;
 const dto = this.form.value as CreateTaskDto;
 
-const operation = this.taskId
-? this.taskService.actualizar(this.taskId, dto)
-: this.taskService.crear(dto);
+const operation = this.taskId ? this.taskService.update(this.taskId, dto) : this.taskService.create(dto);
 operation.subscribe(() => {
-this.form.reset();
-this.router.navigate(['/tareas']);
+  this.form.reset();
+  this.router.navigate(['/tasks']);
 });
 }
 
@@ -65,10 +68,10 @@ cancel(): void { this.router.navigate(['/tasks']); }
 
 // patchValue() — rellena solo los campos indicados
 // Los campos no mencionados mantienen su valor actual
-this.form.patchValue({
-title: 'Preparar informe trimestral',
-type: 'Simple'
-// descripcion, fechaLimite y usuarioId no cambian
-});
+// this.form.patchValue({
+// title: 'Preparar informe trimestral',
+// type: 'Simple'
+// // descripcion, fechaLimite y usuarioId no cambian
+// });
 
 }

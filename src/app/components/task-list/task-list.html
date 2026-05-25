@@ -1,24 +1,21 @@
-@if (TaskService.loading()) {
+@if (taskService.loading()) {
 <div class="text-center py-4">
 <div class="spinner-border text-primary" role="status">
 <span class="visually-hidden">Cargando...</span>
 </div>
 </div>
 }
-@if (TaskService.error()) {
+@if (taskService.error()) {
 <div class="alert alert-danger">
-{{ TaskService.error() }}
+{{ taskService.error() }}
 </div>
 }
-@if (!TaskService.loading() && !TaskService.error()) {
+@if (!taskService.loading() && !taskService.error()) {
 
-@if (tasks().length === 0) {
-  <p>No existen tareas que mostrar.</p>
-} @else {
-  <p>{{ tasks().length }} tareas - {{ totalTasks() }} están pendientes.</p>
-  @for (task of tasks(); track task.id) {
-    <app-task-card [task]="task"
-    (completTask)="onComplete($event)"
+  @for (task of taskService.tasks(); track task.id) {
+    <app-task-card
+    [task]="task"
+    (completeTask)="onComplete($event)"
     (deleteTask)="onDelete($event)"/>
   } @empty {
     <p class="text-muted">No hay tareas disponibles</p>
@@ -28,4 +25,4 @@
 <h2>Mis tareas</h2>
 <a routerLink="/tasks/newTask" class="btn btn-primary">+ Nueva tarea</a>
 </div>
-}
+

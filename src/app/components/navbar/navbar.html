@@ -1,20 +1,6 @@
 <!-- routerLink — navega sin recargar -->
-<a class="nav-link" routerLink="/tasks">Tareas</a>
-<!-- routerLinkActive — clase cuando está activa -->
-<a class="nav-link"
-routerLink="/tasks"
-routerLinkActive="active">
-Tareas
-</a>
-@if (authService.isAuthenticated()) {
-<button class="btn btn-outline-light btn-sm"
-(click)="onLogout()">
-Cerrar sesión
-</button>
-}
 
-<!-- Ruta con parámetro dinámico -->
-<a class="nav-link"
-[routerLink]="['/tasks', task.id]">
-Ver detalle
-</a>
+<a class="nav-link" routerLink="/tasks" routerLinkActive="active"> Tareas </a>
+@if (authService.isAuthenticated()) {
+    <button class="btn btn-outline-light btn-sm" (click)="onLogout()">Cerrar sesión</button>
+}

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 @Component({
   selector: 'app-notification',
@@ -14,6 +14,6 @@ import { Component } from '@angular/core';
 
 })
 export class Notification {
-protected notificationService = inject(NotificationService);
+protected notificationService = inject(Notification);
 
 }
