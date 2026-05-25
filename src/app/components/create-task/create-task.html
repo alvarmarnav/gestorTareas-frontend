@@ -1,0 +1,44 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+<div class="mb-3">
+<label for="title" class="form-label">Título *</label>
+<input type="text" id="title" class="form-control"
+[class.is-invalid]="title?.invalid && title?.touched"
+formControlName="title">
+@if (title?.invalid && title?.touched) {
+<div class="invalid-feedback d-block">
+@if (title?.hasError('required')) { <span>Obligatorio</span> }
+@if (title?.hasError('minlength')) { <span>Mínimo 3 caracteres</span> }
+@if (title?.hasError('maxlength')) { <span>Máximo 200 caracteres</span> }
+</div>
+}
+</div>
+<div class="mb-3">
+<label for="description" class="form-label">Descripción</label>
+<textarea id="description" class="form-control" rows="3"
+formControlName="description"></textarea>
+</div>
+<div class="row mb-3">
+<div class="col">
+<label for="type" class="form-label">Tipo *</label>
+<select id="type" class="form-select" formControlName="type">
+<option value="Simple">Simple</option>
+<option value="Recurrente">Recurrente</option>
+</select>
+</div>
+<div class="col">
+<label for="dueTime" class="form-label">Fecha límite</label>
+<input type="date" id="dueTime" class="form-control"
+[class.is-invalid]="dueTime?.invalid && dueTime?.touched"
+formControlName="dueTime">
+@if (dueTime?.hasError('fechaPasada') && dueTime?.touched) {
+<div class="invalid-feedback d-block">La fecha no puede ser anterior a hoy</div>
+}
+</div>
+</div>
+<div class="d-flex gap-2 justify-content-end">
+<button type="button" class="btn btn-outline-secondary"
+(click)="cancel()">Cancelar</button>
+<button type="submit" class="btn btn-primary"
+[disabled]="form.invalid">Crear tarea</button>
+</div>
+</form>

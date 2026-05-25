@@ -12,12 +12,14 @@ import { TaskService } from '../../services/task.service';
   styleUrl: './task-list.css',
 })
 export class TaskList implements OnInit,OnDestroy,OnChanges {
-  // tasks: TaskdtoModel[] = [];
-  tasks = signal<TaskdtoModel[]>([]);
-  private subscription?:Subscription;
-  private timer?:ReturnType<typeof setInterval>;
-  filter = signal<String>('');
-  totalTasks=signal<number>(0);
+ protected tareaService = inject(TaskService);
+
+
+  // tasks = signal<TaskdtoModel[]>([]);
+  // private subscription?:Subscription;
+  // private timer?:ReturnType<typeof setInterval>;
+  // filter = signal<String>('');
+  // totalTasks=signal<number>(0);
 
 
   constructor() {
@@ -28,30 +30,26 @@ export class TaskList implements OnInit,OnDestroy,OnChanges {
   private taskService= inject(TaskService);
 
   ngOnInit(): void {
-  console.log('Componente inicializado');
-  this.timer = setInterval(() => {
-    console.log('Comprobando tareas...');
-  }, 5000);
+// subscribe() es necesario — sin él Angular no hace la petición
+this.taskService.loadTasks().subscribe();
+}
+onComplete(id: number): void {
+// tap() actualiza el Signal automáticamente tras la respuesta
+this.taskService.completer(id).subscribe();
+}
+onDelete(id: number): void {
+this.taskService.delete(id).subscribe();
 }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    throw new Error('Method not implemented.');
-  }
+//   ngOnChanges(changes: SimpleChanges): void {
+//     throw new Error('Method not implemented.');
+//   }
 
-
-onComplete(id:number):void{
- this.taskService.complete(id);
-}
-
-onDelete(id:number):void{
-  this.taskService.delete(id);
-}
-
-ngOnDestroy(): void {
-  if(this.timer){
-    clearInterval(this.timer);
-  }
-  this.subscription?.unsubscribe();
-  console.log('Componente timer destruido y liberados recursos.');
-}
+// ngOnDestroy(): void {
+//   if(this.timer){
+//     clearInterval(this.timer);
+//   }
+//   this.subscription?.unsubscribe();
+//   console.log('Componente timer destruido y liberados recursos.');
+// }
 }

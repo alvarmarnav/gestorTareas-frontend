@@ -8,12 +8,24 @@ import { CreateTaskDto } from '../models/create-task-dto.model';
 @Injectable({
   providedIn: 'root',
 })
+
 export class TaskService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:5001/api';
+  private authService = inject(AuthService);
+  private baseUrl = environment.apiUrl;
 
-  private readonly _tasks = signal<TaskdtoModel[]>([]);
-  readonly tasks = this._tasks.asReadonly();
+// Signal privado — fuente de verdad de las tasks
+private _tasks = signal<TaskdtoModel[]>([]);
+private _loading = signal<boolean>(false);
+private _error = signal<string | null>(null);
+
+// Signals públicos de solo lectura
+readonly tasks = this._tasks.asReadonly();
+readonly totalPending = computed(() =>
+this._tasks().filter(t => !t.isCompleted).length
+)
+readonly loading = this._loading.asReadonly();
+readonly error = this._error.asReadonly();
 
   // Función reutilizable para manejar errores HTTP
   private handleError(error: HttpErrorResponse) {
@@ -30,46 +42,82 @@ export class TaskService {
     // throwError() propaga el error al siguiente catchError o al subscribe
     return throwError(() => error);
   }
-  // GET /api/tareas — devuelve Observable<PaginadoDto<TareaDto>>
+
+// private get headers(): HttpHeaders {
+// return new HttpHeaders({
+// 'Content-Type': 'application/json',
+// 'Authorization': `Bearer ${this.authService.token()}`
+// });
+// }
+
+  // GET /api/tasks — devuelve Observable<PaginadoDto<TareaDto>>
   getTasks(pageNumber:number,pageSize:number):Observable<PaginationDto<TaskdtoModel>> {
     return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`)
     .pipe(
-      // map((response) => response.tasksData), // extraer el array
+      map((response) => response.tasksData), // extraer el array
       catchError((error) => this.handleError(error)),
     );
   }
-  // GET /api/tareas/:id — obtener una tarea por id
+  // GET /api/tasks/:id — obtener una task por id
   getTaskById(id: number) {
     return this.http.get<TaskdtoModel>(`${this.baseUrl}/tasks/${id}`);
   }
 
-  // POST /api/tareas — crear una tarea nueva
+  // POST /api/tasks — crear una task nueva
   create(dto: CreateTaskDto) {
     return this.http.post(
-      `${this.baseUrl}/tareas`,
+      `${this.baseUrl}/tasks`,
       dto, // HttpClient serializa a JSON y añade Content-Type automáticamente
     );
   }
-  // PUT /api/tareas/:id — actualizar una tarea existente
+  // PUT /api/tasks/:id — actualizar una task existente
   update(id: number, dto: CreateTaskDto) {
     return this.http.put<void>(
-      `${this.baseUrl}/tareas/${id}`,
+      `${this.baseUrl}/tasks/${id}`,
       dto, // PUT devuelve 204 No Content — por eso void como tipo
     );
   }
-  // DELETE /api/tareas/:id — eliminar una tarea
+  // DELETE /api/tasks/:id — eliminar una task
   delete(id: number) {
     return this.http.delete<void>(
-      `${this.baseUrl}/tareas/${id}`,
-      // DELETE también devuelve 204 No Content
-    );
+`${this.baseUrl}/tasks/${id}`, { headers: this.headers }
+).pipe(
+tap(() => this._tasks.update(tasks => tasks.filter(t => t.id !== id))),
+catchError(err => this.handleError(err))
+)
   }
 
   readonly totalPendingTasks = computed(() => this._tasks().filter((t) => !t.isCompleted).length);
 
   complete(id: number): void {
-    this._tasks.update((tasks) =>
-      tasks.map((t) => (t.id === id ? { ...t, isCompleted: true } : t)),
-    );
+    return this.http.put<void>(
+`${this.baseUrl}/tasks/${id}`, {}, { headers: this.headers }
+).pipe(
+tap(() => this._tasks.update(tasks =>
+tasks.map(t => t.id === id ? { ...t, isCompleted: true } : t)
+)),
+catchError(err => this.handleError(err))
+)
   }
+
+  loadTasks() {
+this._loading.set(true);
+this._error.set(null);
+return this.http.get<PaginationDto<TaskdtoModel>>(
+`${this.baseUrl}/tasks`,
+{ headers: this.headers }
+).pipe(
+map(response => response.datos),
+tap(tasks => {
+this._tasks.set(tasks);
+this._loading.set(false);
+}),
+catchError(err => {
+this._loading.set(false);
+this._error.set('Error al cargar las tareas');
+return of([]);
+})
+);
+}
+
 }
