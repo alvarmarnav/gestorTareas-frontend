@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { TaskdtoModel } from '../models/taskdto.model';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { PaginationDto } from '../models/pagination-dto.model';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { CreateTaskDto } from '../models/create-task-dto.model';
@@ -14,6 +14,8 @@ export class TaskService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private baseUrl = environment.apiUrl;
+
+
 
   // Signal privado — fuente de verdad de las tasks
   private _tasks = signal<TaskdtoModel[]>([]);
@@ -41,14 +43,6 @@ export class TaskService {
     // throwError() propaga el error al siguiente catchError o al subscribe
     return throwError(() => error);
   }
-
-  // private get headers(): HttpHeaders {
-  // return new HttpHeaders({
-  // 'Content-Type': 'application/json',
-  // 'Authorization': `Bearer ${this.authService.token()}`
-  // });
-  // }
-
   // GET /api/tasks — devuelve Observable<PaginadoDto<TareaDto>>
   getTasks(pageNumber: number, pageSize: number): Observable<TaskdtoModel[]> {
     return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`).pipe(
@@ -62,11 +56,11 @@ export class TaskService {
   }
 
   // POST /api/tasks — crear una task nueva
-  create(dto: CreateTaskDto):Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/tasks`,dto,);
+  create(dto: CreateTaskDto): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/tasks`, dto);
   }
   // PUT /api/tasks/:id — actualizar una task existente
-  update(id: number, dto: CreateTaskDto):Observable<void> {
+  update(id: number, dto: CreateTaskDto): Observable<void> {
     return this.http.put<void>(
       `${this.baseUrl}/tasks/${id}`,
       dto, // PUT devuelve 204 No Content — por eso void como tipo

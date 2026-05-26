@@ -18,6 +18,6 @@ setHeaders: {
 'Authorization': `Bearer ${token}`
 }
 });
-
+console.log("token:",token);
   return next(req);
 };

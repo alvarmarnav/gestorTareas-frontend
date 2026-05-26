@@ -25,10 +25,10 @@ emailAvailabilityValidator(email: string) {
       return this.http.get<boolean>(`${this.baseUrl}/auth/check-email?email=${email}`); 
     }
 
-login(email: string, password: string) {
+login(userEmail: string, userPassword: string) {
 return this.http.post<LoginResponseDto>(
-`${this.baseUrl}/auth/login`,
-{ email, password }
+`${this.baseUrl}/Auth/login`,
+{ userEmail, userPassword }
 ).pipe(
 // tap guarda el token cuando el login tiene éxito
 tap(responseToken=> this._token.set(responseToken.token))

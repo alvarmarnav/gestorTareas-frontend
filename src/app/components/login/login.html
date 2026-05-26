@@ -4,7 +4,7 @@
     <div
       class="flex flex-col text-center md:text-left md:flex-row h-screen justify-evenly md:items-center"
     >
-      <button (click)="onSubmit()">Entrar</button>
+      <!-- <button (click)= "onSubmit()">Entrar</button> -->
       <div class="flex flex-col w-full">
         <div>
           <svg
@@ -22,9 +22,9 @@
             ></path>
           </svg>
         </div>
-        <h1 class="text-5xl text-gray-800 font-bold">Client Area</h1>
+        <h1 class="text-5xl text-gray-800 font-bold">Gestor Tareas App</h1>
         <p class="w-5/12 mx-auto md:mx-0 text-gray-500">
-          Control and monitorize your website data from dashboard.
+         Aplicación Gestor Tareas.
         </p>
       </div>
       <div class="w-full md:w-full lg:w-9/12 mx-auto md:mx-0">
@@ -32,7 +32,7 @@
           <h2 class="text-2xl font-bold text-gray-800 text-left mb-5">Sigin</h2>
           <form [formGroup]= "form" (ngSumbit)="onSubmit()" class="w-full">
             <div id="input" class="flex flex-col w-full my-5">
-              <label for="email" class="text-gray-500 mb-2">User Email</label>
+              <label for="email" class="text-gray-500 mb-2">Email del Usuario</label>
               <input
                 type="email"
                 id="email"
@@ -40,7 +40,7 @@
                 class="form-control appearance-none border-2 border-gray-100 rounded-lg px-4 py-3 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:shadow-lg"
                 [class.is-invalid]="email?.invalid && email?.touched"
                 formControlName="email"
-                placeholder="ana@gestortareas.com"
+                placeholder="Introduce tu email"
               />
               @if (email?.invalid && email?.touched) {
                 <div class="invalid-feedback d-block">
@@ -56,9 +56,9 @@
             <div id="input" class="flex flex-col w-full my-5">
               <label for="password" class="text-gray-500 mb-2">Password</label>
               <input
-                formControlName="password"
+                formControlName= "password"
                 type="password"
-                placeholder="Please insert your password"
+                placeholder="Introduce tu contraseña."
                 id="password"
                 class="form-control border-2 border-gray-100 rounded-lg px-4 py-3 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:shadow-lg"
                 [class.is-invalid]="password?.invalid && password?.touched"
@@ -104,14 +104,14 @@
                       ></path>
                     </svg>
                   </div>
-                  <div class="font-bold">Sigin</div>
+                  <button class="font-bold" (click)= "onSubmit()">SignIn</button>
                 </div>
               </button>
               <div class="flex justify-evenly mt-5">
                 <a href="#" class="w-full text-center font-medium text-gray-500"
-                  >Recover password!</a
+                  >Olvidaste tu password!</a
                 >
-                <a href="#" class="w-full text-center font-medium text-gray-500">Singup!</a>
+                <a href="#" class="w-full text-center font-medium text-gray-500">Regístrate</a>
               </div>
             </div>
           </form>

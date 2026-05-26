@@ -8,12 +8,14 @@ import { authInterceptor } from './interceptors/auth-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
+    // provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     // Registrar HttpClient en el contenedor de DI
     // // withInterceptorsFromDi() permite usar interceptors funcionales
     // provideHttpClient(withInterceptorsFromDi()),
-    provideHttpClient(withInterceptors([authInterceptor,errorInterceptor])),
+    provideHttpClient(withInterceptors([
+      authInterceptor,
+      errorInterceptor])),
     { provide: ErrorHandler, useClass: GlobalErrorHandler }
   ]
 };

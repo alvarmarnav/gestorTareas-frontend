@@ -1,20 +1,42 @@
 <!-- component -->
 <main class="flex items-center justify-center py-10">
   <section class="bg-white w-1/2 space-y-3 px-6 py-4 rounded-3xl shadow-lg border flex flex-col">
-    <img src="https://tailwindui.com/img/components/home-screens.02-card-layout-with-sidebar-xl.png" class="w-full h-32 object-cover rounded-xl hover:filter hover:brightness-75 transition" />
+    <img
+      src="https://tailwindui.com/img/components/home-screens.02-card-layout-with-sidebar-xl.png"
+      class="w-full h-32 object-cover rounded-xl hover:filter hover:brightness-75 transition"
+    />
     <div class="flex justify-between items-center">
-      <h3 class="font-semibold">Presentation for MARS company</h3>
-      <div class="font-extrabold">...</div>
+      <!-- Titulo y tipo -->
+      <h3 class="font-semibold">{{ task.title }}</h3>
+      <div class="font-extrabold">
+        @switch (task.type) {
+          @case ('Simple') {
+            <span class="badge bg-primary">Simple</span>
+          }
+          @case ('Recurrente') {
+            <span class="badge bg-secondary">Recurrente</span>
+          }
+        }
+      </div>
     </div>
+    <!-- Metadatos: usuario y fecha -->
     <ul class="flex space-x-2">
-      <li class="bg-blue-400 text-white text-md px-4 rounded-3xl">iOS App</li>
-      <li class="bg-green-400 text-white text-md px-4 rounded-3xl">Android</li>
+      <li class="bg-blue-400 text-white text-md px-4 rounded-3xl">{{ task.userName }}</li>
+      @if (task.dueTime) {
+        <li class="bg-green-400 text-white text-md px-4 rounded-3xl">{{ task.dueTime }}</li>
+      }
     </ul>
-    <div class="text-gray-600 font-light">Request content for presentation from the Product Manager. Get it done by Wednesday so that it can be presented in the meetings with VC capitalists.</div>
-    <a class="btn btn-outline-secondary btn-sm"
-[routerLink]="['/tasks', task.id, 'edit']">
-Editar
-</a>
-    <button class="bg-gray-800 text-white py-1 rounded-2xl">MARK DONE</button>
+    <div class="text-gray-600 font-light">
+      {{ task.taskDescription }}
+    </div>
+    @if (task.isCompleted) {
+      <span class="btn btn-outline-secondary btn-sm">Completada</span>
+    }@else{
+      <span class="btn btn-outline-secondary btn-sm">Pendiente</span>
+    }
+    <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/tasks', task.id, 'edit']">
+      Editar
+    </a>  
+    <button class="bg-gray-800 text-white py-1 rounded-2xl" [disabled]="task.isCompleted" >Marcar Completada</button>
   </section>
 </main>

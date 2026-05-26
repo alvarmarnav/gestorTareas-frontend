@@ -11,18 +11,15 @@ import { TaskCard } from '../task-card/task-card';
 import { TaskdtoModel } from '../../models/taskdto.model';
 import { Subscription } from 'rxjs';
 import { TaskService } from '../../services/task.service';
-
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [TaskCard],
+  imports: [TaskCard,RouterModule],
   templateUrl: './task-list.html',
   styleUrl: './task-list.css',
 })
-export class TaskList implements OnInit, OnChanges {
-  ngOnChanges(changes: SimpleChanges): void {
-    throw new Error('Method not implemented.');
-  }
+export class TaskList implements OnInit {
+  
   protected taskService = inject(TaskService);
 
   ngOnInit(): void {
@@ -36,4 +33,5 @@ export class TaskList implements OnInit, OnChanges {
   onDelete(id: number): void {
     this.taskService.delete(id).subscribe();
   }
-}
+}import { RouterModule } from '@angular/router';
+
