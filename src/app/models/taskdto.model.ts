@@ -5,7 +5,7 @@ export interface TaskdtoModel {
   taskDescription?: string;
   taskPriority?:string;
   taskStatus?:string;
-  dueTime?: string | null;
+  dueTime: string | null;
   cancelReason?:string;
   // linkedTaskOrder?:number;
   // recurrenceRule?:number;

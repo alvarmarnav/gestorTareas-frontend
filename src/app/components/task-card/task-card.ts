@@ -2,11 +2,13 @@ import { Component, EventEmitter, Input, input, OnChanges, Output, SimpleChanges
 import { TaskdtoModel } from '../../models/taskdto.model';
 import { RouterLink } from '@angular/router';
 import { TaskStatus } from '../../models/task-status';
+import { RemainingDaysPipe } from '../../pipes/remaining-days-pipe';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-task-card',
   standalone:true,
-  imports: [RouterLink],
+  imports: [RouterLink,RemainingDaysPipe,DatePipe],
   templateUrl: './task-card.html',
   styleUrl: './task-card.css',
 })
