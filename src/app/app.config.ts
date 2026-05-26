@@ -1,5 +1,5 @@
 import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import { GlobalErrorHandler } from './core/services/global-error-handler';
@@ -9,7 +9,7 @@ import { authInterceptor } from './interceptors/auth-interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     // provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    provideRouter(routes,withComponentInputBinding()),
     // Registrar HttpClient en el contenedor de DI
     // // withInterceptorsFromDi() permite usar interceptors funcionales
     // provideHttpClient(withInterceptorsFromDi()),

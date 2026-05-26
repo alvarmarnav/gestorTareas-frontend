@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TaskService } from '../../services/task.service';
 import { TaskdtoModel } from '../../models/taskdto.model';
@@ -13,6 +13,7 @@ export class TaskDetail {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private taskService = inject(TaskService);
+  @Input() id!: string
   task = signal<TaskdtoModel | null>(null);
   ngOnInit(): void {
     // Leer el parámetro :id de la URL actual

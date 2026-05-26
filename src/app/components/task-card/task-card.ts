@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { TaskdtoModel } from '../../models/taskdto.model';
 import { RouterLink } from '@angular/router';
+import { TaskStatus } from '../../models/task-status';
 
 @Component({
   selector: 'app-task-card',

@@ -6,51 +6,47 @@ import { noAuthGuard } from './guards/no-auth-guard';
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-// Sin lazy loading — el componente se importa al inicio
-// component: LoginComponent
-// Con lazy loading — se carga solo cuando el usuario navega aquí
-// loadComponent devuelve una Promise con el componente
-{
+  // Sin lazy loading — el componente se importa al inicio
+  // component: LoginComponent
+  // Con lazy loading — se carga solo cuando el usuario navega aquí
+  // loadComponent devuelve una Promise con el componente
+  {
     // Ruta pública — sin guard
-path: 'login',
-component: Login,
-// solo accesible si NO está autenticado
-canActivate: [noAuthGuard]
-},
-{
-path: 'tasks',
-canActivate: [authGuard],
-component:TaskList
-},
-{
+    path: 'login',
+    component: Login,
+    // solo accesible si NO está autenticado
+    canActivate: [noAuthGuard],
+  },
+  {
+    path: 'tasks',
+    canActivate: [authGuard],
+    loadComponent:()=> import('./components/task-list/task-list').then((m=>m.TaskList)),
+  },
+  {
     path: 'tasks/newTask',
-    canActivate:[authGuard],
-    loadComponent:()=>
-        import('./components/create-task/create-task')
-    .then(m=>m.CreateTask)
-},
-{
-path: 'tasks/:id/edit',
-canActivate: [authGuard],
-loadComponent: () =>
-import('./components/create-task/create-task')
-.then(m => m.CreateTask)
-},
-{
-path: 'tasks/:id',
-canActivate: [authGuard],
-component: TaskDetail,
-},
-{
-// Ruta raíz y comodín (ya definidas anteriormente)
-path: '',
-redirectTo: 'login',
-pathMatch: 'full'
-},
-{
-path: '**',
-redirectTo: 'login'
-}
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/create-task/create-task').then((m) => m.CreateTask),
+  },
+  {
+    path: 'tasks/:id/edit',
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/create-task/create-task').then((m) => m.CreateTask),
+  },
+  {
+    path: 'tasks/:id',
+    canActivate: [authGuard],
+    component: TaskDetail,
+  },
+  {
+    // Ruta raíz y comodín (ya definidas anteriormente)
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full',
+  },
+  {
+    path: '**',
+    redirectTo: 'login',
+  },
 ];

@@ -11,6 +11,7 @@ import { TaskCard } from '../task-card/task-card';
 import { TaskdtoModel } from '../../models/taskdto.model';
 import { Subscription } from 'rxjs';
 import { TaskService } from '../../services/task.service';
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-task-list',
   standalone: true,
@@ -33,5 +34,5 @@ export class TaskList implements OnInit {
   onDelete(id: number): void {
     this.taskService.delete(id).subscribe();
   }
-}import { RouterModule } from '@angular/router';
+}
 

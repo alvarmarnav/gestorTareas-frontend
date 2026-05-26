@@ -15,8 +15,6 @@ export class TaskService {
   private authService = inject(AuthService);
   private baseUrl = environment.apiUrl;
 
-
-
   // Signal privado — fuente de verdad de las tasks
   private _tasks = signal<TaskdtoModel[]>([]);
   private _loading = signal<boolean>(false);
@@ -45,10 +43,17 @@ export class TaskService {
   }
   // GET /api/tasks — devuelve Observable<PaginadoDto<TareaDto>>
   getTasks(pageNumber: number, pageSize: number): Observable<TaskdtoModel[]> {
-    return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`).pipe(
-      map((response) => response.items), // extraer el array
-      catchError((error) => this.handleError(error)),
-    );
+    return this.http
+      .get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
+        params: {
+          pageNumber,
+          pageSize: pageSize,
+        },
+      })
+      .pipe(
+        map((response) => response.data), // extraer el array
+        catchError((error) => this.handleError(error)),
+      );
   }
   // GET /api/tasks/:id — obtener una task por id
   getTaskById(id: number) {
@@ -91,7 +96,7 @@ export class TaskService {
     this._loading.set(true);
     this._error.set(null);
     return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`).pipe(
-      map((response) => response.items),
+      map((response) => response.data),
       tap((tasks) => {
         this._tasks.set(tasks);
         this._loading.set(false);

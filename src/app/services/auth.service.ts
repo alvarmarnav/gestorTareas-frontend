@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { tap } from 'rxjs';
+import { environment } from '../../Environments/environment';
 
 interface LoginResponseDto{
   token:string,
@@ -14,9 +15,13 @@ interface LoginResponseDto{
 export class AuthService {
     
   private http = inject(HttpClient);
-private baseUrl = 'https://localhost:5001/api';
+private baseUrl = environment.apiUrl;
+private tokenLocal = '';
+
 // Signal privado — fuente de verdad del token
-private _token = signal<string | null>(null);
+private _token = signal<string | null>(
+  localStorage.getItem(this.tokenLocal)
+);
 // Signals públicos de solo lectura
 readonly token = this._token.asReadonly();
 readonly isAuthenticated = computed(() => this._token() !== null);
@@ -31,10 +36,19 @@ return this.http.post<LoginResponseDto>(
 { userEmail, userPassword }
 ).pipe(
 // tap guarda el token cuando el login tiene éxito
-tap(responseToken=> this._token.set(responseToken.token))
+tap(responseToken=> {
+  this._token.set(responseToken.token)
+  //guardar en localstorage
+  this.setToken(responseToken.token)
+})
 );
 }
 logout(): void {
 this._token.set(null);
+localStorage.removeItem(this.tokenLocal)
+}
+private setToken(token:string){
+  this._token.set(token)
+  localStorage.setItem(this.tokenLocal,token)
 }
 }

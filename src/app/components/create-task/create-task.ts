@@ -25,7 +25,7 @@ title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(
 taskDescription: [''],
 dueTime: [null as string | null, futureDateValidator()],
 type: ['Simple', Validators.required],
-userId: [null as number | null, [Validators.required, Validators.min(1)]]
+// userId: [null as number | null, [Validators.required, Validators.min(1)]]
 });
 
 get formTitle(): string {
@@ -43,7 +43,7 @@ title: task.title,
 taskDescription: task.taskDescription ?? '',
 dueTime: task.dueTime,
 type: task.type,
-userId: task.userId
+// userId: task.userId
 });
 });
 }
