@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
+import { NotificationService } from '../../services/notification';
 
 @Component({
-  selector: 'app-notification',
+  selector: 'app-notificationComponent',
   imports: [],
   templateUrl: './notification.html',
   styleUrl: './notification.css',
@@ -13,7 +14,7 @@ import { Component, inject } from '@angular/core';
 }`
 
 })
-export class Notification {
-protected notificationService = inject(Notification);
+export class NotificationComponent {
+protected notificationService = inject(NotificationService);
 
 }

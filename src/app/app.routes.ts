@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { TaskList } from './components/task-list/task-list';
 import { TaskDetail } from './components/task-detail/task-detail';
+import { Login } from './components/login/login';
+import { noAuthGuard } from './guards/no-auth-guard';
+import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },

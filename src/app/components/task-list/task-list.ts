@@ -19,35 +19,16 @@ import { TaskService } from '../../services/task.service';
   templateUrl: './task-list.html',
   styleUrl: './task-list.css',
 })
-export class TaskList implements OnInit, OnDestroy, OnChanges {
-  ngOnDestroy(): void {
+export class TaskList implements OnInit, OnChanges {
+  ngOnChanges(changes: SimpleChanges): void {
     throw new Error('Method not implemented.');
   }
   protected taskService = inject(TaskService);
 
-  // tasks = signal<TaskdtoModel[]>([]);
-  // private subscription?:Subscription;
-  // private timer?:ReturnType<typeof setInterval>;
-  // filter = signal<String>('');
-  // totalTasks=signal<number>(0);
-
-  // constructor() {
-  //   // Solo para inyectar dependencias
-  //   // Los @Input() aún no tienen valor aquí
-  // }
-   ngOnInit(): void {
+  ngOnInit(): void {
     // subscribe() es necesario — sin él Angular no hace la petición
     this.taskService.loadTasks().subscribe();
   }
-  ngOnChanges(changes: SimpleChanges): void {
-    throw new Error('Method not implemented.');
-  }
-  // ngOnDestroy(): void {
-  //   throw new Error('Method not implemented.');
-  // }
-  // private taskService= inject(TaskService);
-
- 
   onComplete(id: number): void {
     // tap() actualiza el Signal automáticamente tras la respuesta
     this.taskService.complete(id).subscribe();
@@ -55,16 +36,4 @@ export class TaskList implements OnInit, OnDestroy, OnChanges {
   onDelete(id: number): void {
     this.taskService.delete(id).subscribe();
   }
-
-  //   ngOnChanges(changes: SimpleChanges): void {
-  //     throw new Error('Method not implemented.');
-  //   }
-
-  // ngOnDestroy(): void {
-  //   if(this.timer){
-  //     clearInterval(this.timer);
-  //   }
-  //   this.subscription?.unsubscribe();
-  //   console.log('Componente timer destruido y liberados recursos.');
-  // }
 }

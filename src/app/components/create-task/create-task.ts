@@ -7,7 +7,7 @@ import { futureDateValidator } from '../../core/validators/future-date-validator
 
 @Component({
   selector: 'app-create-task',
-  imports: [],
+  imports: [ReactiveFormsModule],
   templateUrl: './create-task.html',
   styleUrl: './create-task.css',
 })
@@ -22,7 +22,7 @@ taskId: number | null = null;
 
 form = this.fb.group({
 title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
-description: [''],
+taskDescription: [''],
 dueTime: [null as string | null, futureDateValidator()],
 type: ['Simple', Validators.required],
 userId: [null as number | null, [Validators.required, Validators.min(1)]]
@@ -40,7 +40,7 @@ this.taskService.getTaskById(this.taskId)
 .subscribe(task => {
 this.form.patchValue({
 title: task.title,
-description: task.taskDescription ?? '',
+taskDescription: task.taskDescription ?? '',
 dueTime: task.dueTime,
 type: task.type,
 userId: task.userId
