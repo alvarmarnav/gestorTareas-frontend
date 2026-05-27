@@ -11,8 +11,10 @@ import { AuthService } from '../../services/auth.service';
 export class Navbar {
   protected authService = inject(AuthService);
 private router = inject(Router);
+
 onLogout(): void {
 this.authService.logout();
 this.router.navigate(['/login']);
 }
+
 }

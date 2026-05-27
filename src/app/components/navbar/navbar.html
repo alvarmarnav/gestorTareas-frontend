@@ -1,14 +1,16 @@
 <nav
-  class="fixed right-3 top-3 z-[0] flex w-[calc(100vw_-_6%)] flex-row items-center justify-between rounded-lg bg-white/30 py-2 backdrop-blur-xl transition-all dark:bg-transparent md:right-[30px] md:top-4 md:w-[calc(100vw_-_8%)] md:p-2 lg:w-[calc(100vw_-_6%)] xl:top-[20px] xl:w-[calc(100vw_-_365px)] 2xl:w-[calc(100vw_-_380px)]"
+  class="fixed top-0 left-0 z-50 flex w-full items-center justify-between 
+         bg-white/30 py-2 backdrop-blur-xl transition-all 
+         dark:bg-transparent md:p-3"
 >
-  <div class="ml-[6px]">
+  <div class="ml-3">
     <div class="h-6 md:mb-2 md:w-[224px] md:pt-1">
-      <a class="hidden text-xs font-normal text-zinc-950 hover:underline dark:text-white dark:hover:text-white md:inline"
-        href="">Pages<span class="mx-1 text-xs text-zinc-950 hover:text-zinc-950 dark:text-white">
+      <a class="hidden text-xs font-normal text-zinc-950 hover:underline dark:text-white md:inline"
+        href="">Inicio<span class="mx-1 text-xs text-zinc-950 dark:text-white">
           /
         </span></a
       ><a
-        class="text-xs font-normal capitalize text-zinc-950 hover:underline dark:text-white dark:hover:text-white"
+        class="text-xs font-normal capitalize text-zinc-950 hover:underline dark:text-white"
         href="#"
         style="border-radius: 0px"
         >TaskManager</a
@@ -23,10 +25,10 @@
       >
     </p>
   </div>
-  <div class="w-[154px] min-w-max md:ml-auto md:w-[unset]">
-    <div
+  <div class="flex items-center gap-2 pr-3">
+    <!-- <div
       class="relative flex min-w-max max-w-max flex-grow items-center justify-around gap-1 rounded-lg md:px-2 md:py-2 md:pl-3 xl:gap-2"
-    >
+    > -->
       <button
         class="items-center justify-center whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-background hover:bg-accent hover:text-accent-foreground flex h-9 min-w-9 cursor-pointer rounded-full border-zinc-200 p-0 text-xl text-zinc-950 dark:border-zinc-800 dark:text-white md:min-h-10 md:min-w-10 xl:hidden"
       >
@@ -48,7 +50,7 @@
           <line x1="21" y1="18" x2="3" y2="18"></line>
         </svg></button
       ><button
-        class="items-center justify-center whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-background hover:bg-accent hover:text-accent-foreground flex h-9 min-w-9 cursor-pointer rounded-full border-zinc-200 p-0 text-xl text-zinc-950 dark:border-zinc-800 dark:text-white md:min-h-10 md:min-w-10"
+        class="hidden md:relative items-center justify-center whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-background hover:bg-accent hover:text-accent-foreground flex h-9 min-w-9 cursor-pointer rounded-full border-zinc-200 p-0 text-xl text-zinc-950 dark:border-zinc-800 dark:text-white md:min-h-10 md:min-w-10"
       >
         <svg
           stroke="currentColor"
@@ -68,7 +70,7 @@
           ></path>
         </svg></button
       ><button
-        class="items-center justify-center whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-background hover:bg-accent hover:text-accent-foreground flex h-9 min-w-9 cursor-pointer rounded-full border-zinc-200 p-0 text-xl text-zinc-950 dark:border-zinc-800 dark:text-white md:min-h-10 md:min-w-10"
+        class="hidden md:relative items-center justify-center whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-background hover:bg-accent hover:text-accent-foreground flex h-9 min-w-9 cursor-pointer rounded-full border-zinc-200 p-0 text-xl text-zinc-950 dark:border-zinc-800 dark:text-white md:min-h-10 md:min-w-10"
         type="button"
         id="radix-:r2:"
         aria-haspopup="menu"
@@ -129,12 +131,12 @@
             src="https://lh3.googleusercontent.com/a/ACg8ocKGiB3SX_PVR817Y_l-Dy2ybR5Z9KcT4Nm-Ek5fZeG3WS3wEFg=s96-c" /></span
       ></a>
     </div>
-  </div>
+  <!-- </div> -->
 </nav>
 
 <!-- routerLink — navega sin recargar -->
 
 <a class="nav-link" routerLink="/tasks" routerLinkActive="active"> Tareas </a>
 @if (authService.isAuthenticated()) {
-  <button class="btn btn-outline-light btn-sm" (click)="onLogout()">Cerrar sesión</button>
+  <button class="bg-white border-red rounded-md text-red-600 px-3 py-1.5 text-sm font-medium  border border-white rounded hover:bg-red-600 hover:text-white transition-colors duration-200" (click)="onLogout()">Cerrar sesión</button>
 }
