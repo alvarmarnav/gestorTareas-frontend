@@ -6,6 +6,10 @@ import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { CreateTaskDto } from '../models/create-task-dto.model';
 import { AuthService } from './auth.service';
 import { environment } from '../../Environments/environment';
+import { CreateRecurringTaskDto } from '../models/recurring-task-dto/create-recurring-task-dto.model';
+import { CreateCompositeTaskDto } from '../models/composite-task-dto/create-composite-task-dto.model';
+import { CreateTaskcollaboratorDto } from '../models/create-taskcollaborator-dto/create-taskcollaborator-dto.model';
+import { CreateCollaborativeTaskDto } from '../models/create-collaborativetask-dto.model';
 
 @Injectable({
   providedIn: 'root',
@@ -61,18 +65,39 @@ export class TaskService {
   }
 
   // POST /api/tasks — crear una task nueva
-  create(dto: CreateTaskDto): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/tasks`, dto);
+  create(dto: CreateTaskDto): Observable<TaskdtoModel> {
+    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks`, dto);
   }
+  //poliformismo
+//   createSimple(dto: any) {
+//   return this.http.post<any>(`${this.baseUrl}/tasks/simple`, dto);
+// }
+
+createRecurring(dto: CreateRecurringTaskDto):Observable<TaskdtoModel> {
+  return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/recurring`, dto);
+}
+
+createComposite(dto: CreateCompositeTaskDto):Observable<TaskdtoModel> {
+  return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/composite`, dto);
+}
+
+createCollaborative(dto: CreateCollaborativeTaskDto):Observable<TaskdtoModel> {
+  return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/collaborative`, dto);
+}
+
+addLinkedRelation(taskId: number, dto: { dependsOnTaskId: number; linkedTaskOrder: number }):Observable<TaskdtoModel> {
+  return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/${taskId}/linkedRelation`, dto);
+}
+
   // PUT /api/tasks/:id — actualizar una task existente
-  update(id: number, dto: CreateTaskDto): Observable<void> {
-    return this.http.put<void>(
+  update(id: number, dto: CreateTaskDto): Observable<TaskdtoModel> {
+    return this.http.put<TaskdtoModel>(
       `${this.baseUrl}/tasks/${id}`,
       dto, // PUT devuelve 204 No Content — por eso void como tipo
     );
   }
   // DELETE /api/tasks/:id — eliminar una task
-  delete(id: number) {
+  delete(id: number):  Observable<void>{
     return this.http.delete<void>(`${this.baseUrl}/tasks/${id}`).pipe(
       tap(() => this._tasks.update((tasks) => tasks.filter((t) => t.id !== id))),
       catchError((err) => this.handleError(err)),

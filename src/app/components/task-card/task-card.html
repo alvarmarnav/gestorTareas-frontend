@@ -59,11 +59,7 @@
     <div class="flex gap-2">
       <button (click)="onCompleteTask()"
         class="px-3 py-1 text-sm bg-green-600 text-white rounded disabled:opacity-50"
-        @disabled(task.isCompleted)
-      >
-        Completar
-      </button>
-
+        [disabled]="task.isCompleted">Completar</button>
       <button (click)="onDeleteTask()" class="px-3 py-1 text-sm bg-red-600 text-white rounded">Eliminar</button>
     </div>
   </div>

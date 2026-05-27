@@ -1,4 +1,4 @@
-export interface LinkedTaskDtoModule {
+export interface CreateLinkedTaskDto {
   dependsOnTaskId: number;
   linkedTaskOrder: number;
 }

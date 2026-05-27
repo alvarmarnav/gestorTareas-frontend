@@ -1,6 +1,6 @@
 import { CollaboratorRole } from '../collaborator-role';
 
-export interface CreateTaskcollaboratorDtoModule {
+export interface CreateTaskcollaboratorDto {
   userId: number;
   collaboratorRole: CollaboratorRole;
 }

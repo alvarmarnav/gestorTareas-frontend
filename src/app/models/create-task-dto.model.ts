@@ -1,15 +1,18 @@
+import { FormTaskType } from "./formtasktype";
+import { TaskPriority } from "./task-priority";
+
 export interface CreateTaskDto {
   // id: number;
   // userId?: number;
   title: string;
-  taskDescription?: string;
-  taskPriority?: string;
+  taskDescription: string|null;
+  priority : TaskPriority;
   // taskStatus?: string;
-  dueTime?: string | null;
+  dueTime: string | null;
   // cancelReason?: string;
   // linkedTaskOrder?: number;
   // recurrenceRule?: number;
   // isCompleted?: boolean;
   // userName: string;
-  // type: 'Simple' | 'Recurrente';
+  //  type: FormTaskType | FormTaskType.Simple;
 }

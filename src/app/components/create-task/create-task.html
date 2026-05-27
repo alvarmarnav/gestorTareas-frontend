@@ -1,44 +1,176 @@
-<form class="bg-white shadow rounded-lg p-4 mb-4" [formGroup]= "form" (ngSubmit)="onSubmit()">
-<div class="flex justify-between items-center mb-2">
-<label for="title" class="form-label">Título *</label>
-<input type="text" id="title" class="form-control "
-[class.is-invalid]="title?.invalid && title?.touched"
-formControlName="title">
-@if (title?.invalid && title?.touched) {
-<div class="invalid-feedback d-block">
-@if (title?.hasError('required')) { <span>Obligatorio</span> }
-@if (title?.hasError('minlength')) { <span>Mínimo 3 caracteres</span> }
-@if (title?.hasError('maxlength')) { <span>Máximo 200 caracteres</span> }
+<form
+  class="mx-auto w-full max-w-2xl rounded-3xl border border-gray-200 bg-white p-6 shadow-lg"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+>
+  <div class="mb-5">
+    <label for="title" class="mb-2 block text-sm font-semibold text-gray-700">Título *</label>
+
+    <input
+      type="text"
+      id="title"
+      formControlName="title"
+      class="w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+      [class.border-red-500]="title?.invalid && title?.touched"
+      [class.border-gray-300]="!(title?.invalid && title?.touched)"
+      placeholder="Introduce el título de la tarea"
+    />
+
+    @if (title?.invalid && title?.touched) {
+      <div class="mt-2 text-sm text-red-600">
+        @if (title?.hasError('required')) {
+          <span>Obligatorio</span>
+        }
+        @if (title?.hasError('minlength')) {
+          <span>Mínimo 3 caracteres</span>
+        }
+        @if (title?.hasError('maxlength')) {
+          <span>Máximo 200 caracteres</span>
+        }
+      </div>
+    }
+  </div>
+  <div class="mb-5">
+    <div>
+    <label for="taskDescription" class="mb-2 block text-sm font-semibold text-gray-700"
+      >Descripción</label
+    >
+    </div>
+    <textarea
+      id="taskDescription"
+      class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+      placeholder="Describe la tarea"
+      rows="3"
+      formControlName="taskDescription"
+    ></textarea>
+  </div>
+
+  <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+      <label for="priority" class="mb-2 block text-sm font-semibold text-gray-700">Prioridad *</label>
+       <select
+              id="priority"
+              class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              formControlName="priority"
+            >
+              <option [ngValue]="TaskPriority.Low">Baja</option>
+              <option [ngValue]="TaskPriority.Normal">Normal</option>
+              <option [ngValue]="TaskPriority.High">Alta</option>
+              <option [ngValue]="TaskPriority.Critical">Critica</option>
+            </select>
+  </div>
+
+  <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+    <div>
+      <label for="type" class="mb-2 block text-sm font-semibold text-gray-700">Tipo *</label>
+      <select
+        id="type"
+        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        formControlName="type"
+      >
+        <option value="simpleTask">Simple</option>
+        <option value="recurringTask">Recurrente</option>
+        <option value="compositeTask">Tarea con SubTareas</option>
+        <option value="collaborativeTask">Tarea Colaborativa</option>
+        <option value="linkedTask">Vincular Tareas</option>
+      </select>
+    </div>
+    @switch (form.get('type')?.value) {
+      @case ('recurringTask') {
+        <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div>
+            <label for="reccurrenceRule" class="mb-2 block text-sm font-semibold text-gray-700"
+              >Recurrencia *</label
+            >
+            <select
+              id="recurrenceRule"
+              class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              formControlName="recurrenceRule"
+            >
+              <option [ngValue]="1">Diaria</option>
+              <option [ngValue]="7">Semanal</option>
+              <option [ngValue]="15">Quincenal</option>
+              <option [ngValue]="30">Mensual</option>
+            </select>
+          </div>
+        </div>
+      }
+      @case ('compositeTask') {
+        <div class="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+          <span>Debes crear primero la tarea contenedora</span>
+        </div>
+      }
+      @case ('collaborativeTask') {
+              <div class="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+<span>Debes crear primero la tarea contenedora</span>
 </div>
-}
+      }
+      @case ('linkedTask') {
+        <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div>
+            <label for="dependsOnTaskId" class="mb-2 block text-sm font-semibold text-gray-700"
+              >Vincular Tareas *</label>
+               <input
+            type="number"
+            id="dependsOnTaskId"
+                  class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+formControlName="dependsOnTaskId"/>
+<div>
+    <label for="linkedTaskOrder" class="mb-2 block text-sm font-semibold text-gray-700"
+              >Posición de la tarea en la lista</label>
+               <input
+            type="number"
+            id="linkedTaskOrder"
+                  class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+formControlName="linkedTaskOrder"/>
 </div>
-<div class="mb-3">
-<label for="taskDescription" class="form-label">Descripción</label>
-<textarea id="taskDescription" class="form-control" rows="3"
-formControlName="taskDescription"></textarea>
-</div>
-<div class="row mb-3">
-<div class="col">
-<label for="type" class="form-label">Tipo *</label>
-<select id="type" class="form-select" formControlName="type">
-<option value="Simple">Simple</option>
-<option value="Recurrente">Recurrente</option>
-</select>
-</div>
-<div class="col">
-<label for="dueTime" class="form-label">Fecha límite</label>
-<input type="date" id="dueTime" class="form-control"
-[class.is-invalid]="dueTime?.invalid && dueTime?.touched"
-formControlName="dueTime">
-@if (dueTime?.hasError('fechaPasada') && dueTime?.touched) {
-<div class="invalid-feedback d-block">La fecha no puede ser anterior a hoy</div>
-}
-</div>
-</div>
-<div class="d-flex gap-2 justify-content-end">
-<button type="button" class="btn btn-outline-secondary"
-(click)="cancel()">Cancelar</button>
-<button type="submit" class="btn btn-primary"
-[disabled]="form.invalid">Crear tarea</button>
-</div>
+
+            <!--
+                <select
+              id="dependsOnTaskId"
+              class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              formControlName="dependsOnTaskId
+            >
+              <option value="1">Diaria</option>
+              <option value="7">Semanal</option>
+              <option value="15">Quincenal</option>
+              <option value="30">Mensual</option>
+            </select>
+        -->
+          </div>
+        </div>
+      }
+    }
+    <div class="col">
+      <label for="dueTime" class="mb-2 block text-sm font-semibold text-gray-700"
+        >Fecha límite</label
+      >
+      <input
+        type="date"
+        id="dueTime"
+        class="w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        [class.border-red-500]="dueTime?.invalid && dueTime?.touched"
+        [class.border-gray-300]="!(dueTime?.invalid && dueTime?.touched)"
+        formControlName="dueTime"
+      />
+      @if (dueTime?.hasError('fechaPasada') && dueTime?.touched) {
+        <div class="imt-2 text-sm text-red-600">La fecha no puede ser anterior a hoy</div>
+      }
+    </div>
+  </div>
+  <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <button
+      type="button"
+      class="rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+      (click)="cancel()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
+      [disabled]="form.invalid"
+    >
+      {{ taskId ? 'Actualizar Tarea' : 'Crear Tarea' }}
+    </button>
+  </div>
 </form>

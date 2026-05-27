@@ -7,7 +7,7 @@ export interface TaskResponseDtoModule {
   title: string;
   userId: number;
   taskDescription?: string | null;
-  taskPriority?: TaskPriority | null;
+  taskPriority: TaskPriority;
   taskStatus?: TaskStatus | null;
   dueTime?: string | null;
   cancelReason?: string | null;

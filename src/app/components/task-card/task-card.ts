@@ -48,6 +48,7 @@ this.completeTask.emit(this.task.id);
 }
 // Método que se llama al hacer clic en "Eliminar"
 onDeleteTask(): void {
+  console.log('Click eliminar en task-card', this.task.id);
 this.deleteTask.emit(this.task.id);
 }
 }
