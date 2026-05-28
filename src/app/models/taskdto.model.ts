@@ -2,6 +2,7 @@ import { TaskStatus } from "./task-status";
 import { TaskcollaboratorDto } from "./taskcollaborator-dto/taskcollaborator-dto.model";
 import { TaskPriority } from "./task-priority";
 import { TaskType } from "./task-type";
+import { FormTaskType } from "./formtasktype";
 
 
 export interface TaskdtoModel {
@@ -14,7 +15,7 @@ export interface TaskdtoModel {
   dueTime: string | null;
   cancelReason:string|null;
   userList: TaskcollaboratorDto[]
-  taskType: string;
+  taskType: FormTaskType;
   isCompleted?: boolean;
   userName: string;
 }

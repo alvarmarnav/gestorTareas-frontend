@@ -1,6 +1,7 @@
 import { TaskStatus } from '../task-status';
 import { TaskPriority } from '../task-priority';
 import { TaskcollaboratorDto} from '../taskcollaborator-dto/taskcollaborator-dto.model';
+import { FormTaskType } from '../formtasktype';
 
 export interface TaskResponseDtoModule {
   id: number;
@@ -11,6 +12,6 @@ export interface TaskResponseDtoModule {
   taskStatus?: TaskStatus | null;
   dueTime?: string | null;
   cancelReason?: string | null;
-  taskType?: string;
+  taskType?: FormTaskType;
   userList:TaskcollaboratorDto[]|null;
 }

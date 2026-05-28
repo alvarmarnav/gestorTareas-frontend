@@ -9,9 +9,11 @@ export class RemainingDaysPipe implements PipeTransform {
     if (!dueTime) return 'La tareas no tiene fecha de finalización establecida.';
 
     const today = new Date();
+    today.setHours(0,0,0,0);
     const finishDate = new Date(dueTime);
+    finishDate.setHours(0,0,0,0);
 
-    const diff = finishDate.getTime() - today.getDate();
+    const diff = finishDate.getTime() - today.getTime();
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
 
     if (days < 0) return `Vencida hace ${Math.abs(days)} días`;

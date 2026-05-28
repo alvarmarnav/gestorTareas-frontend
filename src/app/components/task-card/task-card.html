@@ -1,7 +1,45 @@
 <div class="bg-white shadow rounded-lg p-4 mb-4">
   <!-- Cabecera -->
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-lg font-semibold">{{ task.title }}</h3>
+  <div class="mb-3">
+    <div class="flex justify-between items-start gap-4 mb-2">
+    <h3 class="text-lg font-semibold mb-2 block wrap-break-all">{{ task.title }}</h3>
+    <div class="shrink-0 mt-1">
+@switch (task.taskType) {
+      @case (TaskType.Simple) {
+        <span class="px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded">Simple</span>
+      }
+      @case (TaskType.Recurring) {
+        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded"
+          >Recurrente</span
+        >
+      }
+        @case (TaskType.Composite) {
+        <span class="px-2 py-1 text-xs font-semibold bg-brown-600 text-white rounded">Tarea Contenedora</span>
+      }
+      @case (TaskType.SubTask) {
+        <span class="px-2 py-1 text-xs font-semibold bg-emerald-600 text-white rounded"
+          >SubTarea</span
+        >
+      }
+        @case (TaskType.Collaborative) {
+        <span class="px-2 py-1 text-xs font-semibold bg-orange-600 text-white rounded"
+          >Colaborativa</span
+        >
+        }
+        @case (TaskType.Linked) {
+        <span class="px-2 py-1 text-xs font-semibold bg-pink-600 text-white rounded"
+          >Linked</span
+        >
+      }
+      @default {
+        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded"
+          >Sin Determinar{{task.taskType}}</span
+        >
+      }
+    }
+    </div>
+    </div>
+        <div class="flex flex-wrap items-center gap-2">
 <span class="truncate">
       @if (task.dueTime) {
         {{ task.dueTime | date:'dd/MM/yyyy' }}
@@ -13,33 +51,53 @@
     <span class="truncate">
       {{ task.dueTime | remainingDays }}
     </span>
-    @switch (task.taskType) {
-      @case ('Simple') {
+
+
+    <!-- @switch (task.taskType) {
+      @case (TaskType.Simple) {
         <span class="px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded">Simple</span>
       }
-      @case ('Recurrente') {
+      @case (TaskType.Recurring) {
         <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded"
           >Recurrente</span
         >
       }
-      @default {
-        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded"
-          >Sin Determinar</span
+        @case (TaskType.Composite) {
+        <span class="px-2 py-1 text-xs font-semibold bg-brown-600 text-white rounded">Tarea Contenedora</span>
+      }
+      @case (TaskType.SubTask) {
+        <span class="px-2 py-1 text-xs font-semibold bg-emerald-600 text-white rounded"
+          >SubTarea</span
         >
       }
-    }
+        @case (TaskType.Collaborative) {
+        <span class="px-2 py-1 text-xs font-semibold bg-orange-600 text-white rounded"
+          >Colaborativa</span
+        >
+        }
+        @case (TaskType.Linked) {
+        <span class="px-2 py-1 text-xs font-semibold bg-pink-600 text-white rounded"
+          >Linked</span
+        >
+      }
+      @default {
+        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded"
+          >Sin Determinar{{task.taskType}}</span
+        >
+      }
+    } -->
   </div>
-
+</div>
   <!-- Metadatos -->
-  <div class="flex justify-between items-center text-sm text-gray-500">
+  <div class="flex justify-between items-center text-sm text-gray-500 mb-2">
     <span>{{ task.userName }}</span>
 
     @if (task.dueTime) {
-      <span lass="rounded-full bg-green-400 px-3 py-1 text-xs font-medium text-white">{{ task.dueTime }}</span>
+      <span class="rounded-full bg-green-400 px-3 py-1 text-xs font-medium text-white">{{ task.dueTime }}</span>
     }
   </div>
 
-  <p class="line-clamp-3 text-sm text-gray-600">
+  <p class="line-clamp-3 text-sm text-gray-600 mb-4">
       {{ task.taskDescription }}
     </p>
 

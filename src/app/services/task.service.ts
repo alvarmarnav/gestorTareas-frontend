@@ -46,16 +46,16 @@ export class TaskService {
     return throwError(() => error);
   }
   // GET /api/tasks — devuelve Observable<PaginadoDto<TareaDto>>
-  getTasks(pageNumber: number, itemsPerPage: number): Observable<TaskdtoModel[]> {
+  getTasks(actualPage: number, itemsPerPage: number): Observable<TaskdtoModel[]> {
     return this.http
       .get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
         params: {
-          pageNumber:pageNumber.toString(),
+          actualPage:actualPage.toString(),
           itemsPerPage:itemsPerPage.toString(),
         },
       })
       .pipe(
-        map((response) => response.data), // extraer el array
+        map((response) => response.data),
         catchError((error) => this.handleError(error)),
       );
   }
@@ -134,7 +134,7 @@ addLinkedRelation(taskId: number, dto: { dependsOnTaskId: number; linkedTaskOrde
     // );
     return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
       params: {
-        PageNumber: '1',
+        actualPage: '1',
         ItemsPerPage: '10'
       }
     }).pipe(

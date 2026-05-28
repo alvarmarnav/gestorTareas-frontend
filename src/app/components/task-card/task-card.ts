@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { TaskStatus } from '../../models/task-status';
 import { RemainingDaysPipe } from '../../pipes/remaining-days-pipe';
 import { DatePipe } from '@angular/common';
+import { FormTaskType } from '../../models/formtasktype';
+import { TaskType } from '../../models/task-type';
 
 @Component({
   selector: 'app-task-card',
@@ -15,6 +17,7 @@ import { DatePipe } from '@angular/common';
 export class TaskCard implements OnChanges{
   @Input() task!:TaskdtoModel;
   daysToEnd:number=0;
+  protected readonly TaskType = FormTaskType; 
 
   ngOnChanges(changes: SimpleChanges): void {
     if(changes['task']){

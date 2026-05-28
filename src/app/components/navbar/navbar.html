@@ -139,13 +139,14 @@
 
   <!-- routerLink — navega sin recargar -->
 
-  <a class="nav-link" routerLink="/tasks" routerLinkActive="active"> Tareas </a>
+  
   @if (authService.isAuthenticated()) {
+    <a class="nav-link" routerLink="/tasks" routerLinkActive="active"> Inicio </a>
     <button
       class="bg-white border-red rounded-md text-red-600 px-3 py-1.5 text-sm font-medium border border-white rounded hover:bg-red-600 hover:text-white transition-colors duration-200"
       (click)="onLogout()"
     >
-      Cerrar sesión
+      LogOut
     </button>
   }
 }

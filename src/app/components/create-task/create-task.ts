@@ -1,20 +1,18 @@
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService } from '../../services/task.service';
-import { CreateTaskDto } from '../../models/create-task-dto.model';
 import {
   FormBuilder,
-  Validators,
   ReactiveFormsModule,
-  FormArray,
-  FormControl,
+  Validators
 } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { futureDateValidator } from '../../core/validators/future-date-validator.validator';
-import { CreateRecurringTaskDto } from '../../models/recurring-task-dto/create-recurring-task-dto.model';
 import { CreateCompositeTaskDto } from '../../models/composite-task-dto/create-composite-task-dto.model';
-import { FormTaskType } from '../../models/formtasktype';
-import { TaskPriority } from '../../models/task-priority';
 import { CreateCollaborativeTaskDto } from '../../models/create-collaborativetask-dto.model';
+import { CreateTaskDto } from '../../models/create-task-dto.model';
+import { FormTaskType } from '../../models/formtasktype';
+import { CreateRecurringTaskDto } from '../../models/recurring-task-dto/create-recurring-task-dto.model';
+import { TaskPriority } from '../../models/task-priority';
+import { TaskService } from '../../services/task.service';
 @Component({
   selector: 'app-create-task',
   imports: [ReactiveFormsModule],
@@ -33,7 +31,7 @@ export class CreateTask {
   taskId: number | null = null;
 
   form = this.fb.group({
-    title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+    title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
     taskDescription: [''],
     dueTime: [null as string | null, futureDateValidator()],
     taskType: this.fb.nonNullable.control<FormTaskType>(FormTaskType.Simple, [Validators.required]),
@@ -169,19 +167,10 @@ export class CreateTask {
   private createCompositeTask(): void {
     const value = this.form.value;
 
-    var formattedDueTime: string | null = null;
-
-    if (value.dueTime) {
-    const taskDate = value.dueTime ? new Date(value.dueTime) : new Date();
-    const [hours, minutes] = value.dueTime.split(':').map(Number);
-    
-    taskDate.setHours(hours, minutes, 0, 0);
-    formattedDueTime = taskDate.toISOString(); // Genera: "2026-05-28T14:30:00.000Z"
-  }
     const dto: CreateCompositeTaskDto = {
       title: value.title ?? '',
       taskDescription: value.taskDescription ?? '',
-      dueTime: formattedDueTime,
+      dueTime: this.toIsoDateOrNull(value.dueTime),
       priority: value.priority ?? TaskPriority.Normal,
     };
 
@@ -195,20 +184,10 @@ export class CreateTask {
   private createCollaborativeTask(): void {
     const value = this.form.value;
 
-     var formattedDueTime: string | null = null;
-
-    if (value.dueTime) {
-    const taskDate = value.dueTime ? new Date(value.dueTime) : new Date();
-    const [hours, minutes] = value.dueTime.split(':').map(Number);
-    
-    taskDate.setHours(hours, minutes, 0, 0);
-    formattedDueTime = taskDate.toISOString(); // Genera: "2026-05-28T14:30:00.000Z"
-  }
-
     const dto: CreateCollaborativeTaskDto = {
       title: value.title ?? '',
       taskDescription: value.taskDescription ?? '',
-      dueTime: formattedDueTime,
+      dueTime: this.toIsoDateOrNull(value.dueTime),
       priority: value.priority ?? TaskPriority.Normal,
     };
 
@@ -334,6 +313,12 @@ export class CreateTask {
 
   cancel(): void {
     this.router.navigate(['/tasks']);
+  }
+
+  private toIsoDateOrNull(value: string | null | undefined): string | null{
+ if (!value) return null;
+  const date = new Date(`${value}T23:59:00`);
+  return date.toISOString();
   }
 }
 
