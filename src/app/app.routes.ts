@@ -4,6 +4,7 @@ import { TaskDetail } from './components/task-detail/task-detail';
 import { Login } from './components/login/login';
 import { noAuthGuard } from './guards/no-auth-guard';
 import { authGuard } from './guards/auth-guard';
+import { RegisterComponent } from './components/register-component/register-component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -16,6 +17,13 @@ export const routes: Routes = [
     // Ruta pública — sin guard
     path: 'login',
     component: Login,
+    // solo accesible si NO está autenticado
+    canActivate: [noAuthGuard],
+  },
+  {
+    // Ruta pública — sin guard
+    path: 'register',
+    component: RegisterComponent,
     // solo accesible si NO está autenticado
     canActivate: [noAuthGuard],
   },

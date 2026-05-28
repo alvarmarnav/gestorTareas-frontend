@@ -46,12 +46,12 @@ export class TaskService {
     return throwError(() => error);
   }
   // GET /api/tasks — devuelve Observable<PaginadoDto<TareaDto>>
-  getTasks(pageNumber: number, pageSize: number): Observable<TaskdtoModel[]> {
+  getTasks(pageNumber: number, itemsPerPage: number): Observable<TaskdtoModel[]> {
     return this.http
       .get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
         params: {
-          pageNumber,
-          pageSize: pageSize,
+          pageNumber:pageNumber.toString(),
+          itemsPerPage:itemsPerPage.toString(),
         },
       })
       .pipe(
@@ -66,7 +66,7 @@ export class TaskService {
 
   // POST /api/tasks — crear una task nueva
   create(dto: CreateTaskDto): Observable<TaskdtoModel> {
-    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks`, dto);
+    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/simple`, dto);
   }
   //poliformismo
 //   createSimple(dto: any) {
@@ -90,27 +90,27 @@ addLinkedRelation(taskId: number, dto: { dependsOnTaskId: number; linkedTaskOrde
 }
 
   // PUT /api/tasks/:id — actualizar una task existente
-  update(id: number, dto: CreateTaskDto): Observable<TaskdtoModel> {
+  update(taskId: number, dto: CreateTaskDto): Observable<TaskdtoModel> {
     return this.http.put<TaskdtoModel>(
-      `${this.baseUrl}/tasks/${id}`,
+      `${this.baseUrl}/tasks/${taskId}`,
       dto, // PUT devuelve 204 No Content — por eso void como tipo
     );
   }
   // DELETE /api/tasks/:id — eliminar una task
-  delete(id: number):  Observable<void>{
-    return this.http.delete<void>(`${this.baseUrl}/tasks/${id}`).pipe(
-      tap(() => this._tasks.update((tasks) => tasks.filter((t) => t.id !== id))),
+  delete(taskId: number):  Observable<void>{
+    return this.http.delete<void>(`${this.baseUrl}/tasks/${taskId}`).pipe(
+      tap(() => this._tasks.update((tasks) => tasks.filter((t) => t.id !== taskId))),
       catchError((err) => this.handleError(err)),
     );
   }
 
   readonly totalPendingTasks = computed(() => this._tasks().filter((t) => !t.isCompleted).length);
 
-  complete(id: number): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/tasks/${id}`, {}).pipe(
+  complete(taskId: number): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/tasks/${taskId}/complete`, {}).pipe(
       tap(() =>
         this._tasks.update((tasks) =>
-          tasks.map((t) => (t.id === id ? { ...t, isCompleted: true } : t)),
+          tasks.map((t) => (t.id === taskId ? { ...t, isCompleted: true } : t)),
         ),
       ),
       catchError((err) => this.handleError(err)),
@@ -120,7 +120,24 @@ addLinkedRelation(taskId: number, dto: { dependsOnTaskId: number; linkedTaskOrde
   loadTasks() {
     this._loading.set(true);
     this._error.set(null);
-    return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`).pipe(
+    // return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`).pipe(
+    //   map((response) => response.data),
+    //   tap((tasks) => {
+    //     this._tasks.set(tasks);
+    //     this._loading.set(false);
+    //   }),
+    //   catchError((err) => {
+    //     this._loading.set(false);
+    //     this._error.set('Error al cargar las tareas');
+    //     return of([]);
+    //   }),
+    // );
+    return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
+      params: {
+        PageNumber: '1',
+        ItemsPerPage: '10'
+      }
+    }).pipe(
       map((response) => response.data),
       tap((tasks) => {
         this._tasks.set(tasks);
@@ -133,4 +150,5 @@ addLinkedRelation(taskId: number, dto: { dependsOnTaskId: number; linkedTaskOrde
       }),
     );
   }
-}
+  }
+

@@ -1,5 +1,5 @@
 
-export interface RegisterDtoModule {
+export interface RegisterDto {
   userName: string;
   userLastName: string;
   userEmail: string;

@@ -1,6 +1,7 @@
 export interface UserModel {
 id: number;
 userName: string;
+userLastName: string;
 email: string;
 isAdmin: boolean;
 }

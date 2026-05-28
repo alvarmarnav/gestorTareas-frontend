@@ -1,0 +1,134 @@
+<div class="antialiased bg-gradient-to-br from-green-100 to-white min-h-screen flex items-center">
+  <div class="container px-6 mx-auto">
+    <div class="flex flex-col text-center md:text-left md:flex-row min-h-screen justify-evenly md:items-center py-10">
+      
+      <!-- Lado Izquierdo: Logotipo y Título -->
+      <div class="flex flex-col w-full mb-10 md:mb-0">
+        <div>
+          <svg class="w-20 h-20 mx-auto md:float-left fill-stroke text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+          </svg>
+        </div>
+        <h1 class="text-5xl text-gray-800 font-bold">Gestor Tareas App</h1>
+        <p class="w-5/12 mx-auto md:mx-0 text-gray-500 mt-2">Crea tu cuenta para empezar.</p>
+      </div>
+
+      <!-- Lado Derecho: Formulario de Registro -->
+      <div class="w-full md:w-full lg:w-9/12 mx-auto md:mx-0">
+        <div class="bg-white p-10 flex flex-col w-full shadow-xl rounded-xl">
+          <h2 class="text-2xl font-bold text-gray-800 text-left mb-5">Registro</h2>
+          
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="w-full">
+            
+            <!-- Campo: Nombre -->
+            <div class="flex flex-col w-full my-3">
+              <label for="userName" class="text-gray-500 mb-1 text-left">Nombre</label>
+              <input
+                type="text"
+                id="userName"
+                formControlName="userName"
+                placeholder="Introduce tu nombre"
+                class="border-2 border-gray-100 rounded-lg px-4 py-3 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:shadow-lg"
+                [class.border-red-500]="userName?.invalid && userName?.touched"
+              />
+              @if (userName?.invalid && userName?.touched) {
+                <div class="text-red-500 text-sm mt-1 text-left">
+                  @if (userName?.hasError('required')) { <span>El nombre es obligatorio.</span> }
+                  @if (userName?.hasError('minlength')) { <span>Mínimo 3 caracteres.</span> }
+                </div>
+              }
+            </div>
+
+            <!-- Campo: Apellidos -->
+            <div class="flex flex-col w-full my-3">
+              <label for="userLastName" class="text-gray-500 mb-1 text-left">Apellidos</label>
+              <input
+                type="text"
+                id="userLastName"
+                formControlName="userLastName"
+                placeholder="Introduce tus apellidos"
+                class="border-2 border-gray-100 rounded-lg px-4 py-3 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:shadow-lg"
+                [class.border-red-500]="userLastName?.invalid && userLastName?.touched"
+              />
+              @if (userLastName?.invalid && userLastName?.touched) {
+                <div class="text-red-500 text-sm mt-1 text-left">
+                  @if (userLastName?.hasError('required')) { <span>El apellido es obligatorio.</span> }
+                  @if (userLastName?.hasError('minlength')) { <span>Mínimo 3 caracteres.</span> }
+                </div>
+              }
+            </div>
+
+            <!-- Campo: Email -->
+            <div class="flex flex-col w-full my-3">
+              <label for="email" class="text-gray-500 mb-1 text-left">Email del Usuario</label>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                placeholder="Introduce tu email"
+                class="border-2 border-gray-100 rounded-lg px-4 py-3 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:shadow-lg"
+                [class.border-red-500]="email?.invalid && email?.touched"
+              />
+              @if (email?.invalid && email?.touched) {
+                <div class="text-red-500 text-sm mt-1 text-left">
+                  @if (email?.hasError('required')) { <span>El email es obligatorio.</span> }
+                  @if (email?.hasError('email')) { <span>Formato de email no válido.</span> }
+                </div>
+              }
+            </div>
+
+            <!-- Campo: Contraseña -->
+            <div class="flex flex-col w-full my-3">
+              <label for="password" class="text-gray-500 mb-1 text-left">Contraseña</label>
+              <input
+                type="password"
+                id="password"
+                formControlName="password"
+                placeholder="Introduce tu contraseña"
+                class="border-2 border-gray-100 rounded-lg px-4 py-3 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:shadow-lg"
+                [class.border-red-500]="password?.invalid && password?.touched"
+              />
+              @if (password?.invalid && password?.touched) {
+                <div class="text-red-500 text-sm mt-1 text-left">
+                  @if (password?.hasError('required')) { <span>La contraseña es obligatoria.</span> }
+                  @if (password?.hasError('minlength')) { <span>Mínimo 8 caracteres.</span> }
+                </div>
+              }
+            </div>
+
+            <!-- Alerta de Errores de API -->
+            @if (error) {
+              <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded my-3 text-left text-sm">
+                {{ error }}
+              </div>
+            }
+
+            <!-- Botón de Registro y Enlace de Vuelta -->
+            <div class="flex flex-col w-full mt-6">
+              <button 
+                type="submit" 
+                [disabled]="form.invalid" 
+                class="w-full py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 rounded-lg text-green-100 font-bold flex flex-row items-center justify-center transition-colors duration-200"
+              >
+                <div class="mr-2">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                  </svg>
+                </div>
+                Registrarse
+              </button>
+              
+              <div class="flex justify-center mt-5">
+                <a routerLink="/login" class="text-center font-medium text-gray-500 hover:text-green-600 transition-colors">
+                  ¿Ya tienes cuenta? Inicia sesión
+                </a>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

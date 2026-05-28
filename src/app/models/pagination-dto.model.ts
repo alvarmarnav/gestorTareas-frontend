@@ -3,7 +3,7 @@ import { TaskdtoModel } from "./taskdto.model";
 export interface PaginationDto<T> {
     data:T[];
     pageNumber:number;
-    pageSize:number;
+    itemsPerPage:number;
     totalItems:number;
     totalPages:number;
     hasPageBefore:boolean;

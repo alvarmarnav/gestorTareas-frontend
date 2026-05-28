@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { tap } from 'rxjs';
 import { environment } from '../../Environments/environment';
+import { RegisterDto } from '../models/register-dto/register-dto.model';
 
 interface LoginResponseDto{
   token:string,
@@ -16,7 +17,7 @@ export class AuthService {
     
   private http = inject(HttpClient);
 private baseUrl = environment.apiUrl;
-private tokenLocal = '';
+private tokenLocal = 'gestor_tareas_token';
 
 // Signal privado — fuente de verdad del token
 private _token = signal<string | null>(
@@ -42,6 +43,12 @@ tap(responseToken=> {
   this.setToken(responseToken.token)
 })
 );
+}
+register(userName:string,userLastName:string,userEmail: string, userPassword: string) {
+return this.http.post<RegisterDto>(
+`${this.baseUrl}/Auth/register`,
+{userName,userLastName, userEmail, userPassword }
+)
 }
 logout(): void {
 this._token.set(null);

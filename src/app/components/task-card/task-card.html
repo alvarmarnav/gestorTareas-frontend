@@ -13,7 +13,7 @@
     <span class="truncate">
       {{ task.dueTime | remainingDays }}
     </span>
-    @switch (task.type) {
+    @switch (task.taskType) {
       @case ('Simple') {
         <span class="px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded">Simple</span>
       }

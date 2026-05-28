@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormBuilder,ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -7,7 +7,7 @@ import { Title } from '@angular/platform-browser';
 @Component({
   selector: 'app-login',
   standalone:true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

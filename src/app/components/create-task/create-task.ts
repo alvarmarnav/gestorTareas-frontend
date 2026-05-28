@@ -36,7 +36,7 @@ export class CreateTask {
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
     taskDescription: [''],
     dueTime: [null as string | null, futureDateValidator()],
-    type: this.fb.nonNullable.control<FormTaskType>(FormTaskType.Simple, [Validators.required]),
+    taskType: this.fb.nonNullable.control<FormTaskType>(FormTaskType.Simple, [Validators.required]),
     priority: this.fb.nonNullable.control<TaskPriority>(TaskPriority.Normal, [Validators.required]),
     recurrenceRule: this.fb.control<number | null>(null),
 
@@ -60,7 +60,7 @@ export class CreateTask {
           title: task.title,
           taskDescription: task.taskDescription ?? '',
           dueTime: task.dueTime,
-          type: (task.type as FormTaskType) ?? FormTaskType.Simple,
+          taskType: (task.taskType as FormTaskType) ?? FormTaskType.Simple,
           priority: Number(task.taskPriority) ?? TaskPriority.Normal,
           // recurrenceRule:task.recurrenceRule??7,
           // userId: task.userId
@@ -69,17 +69,17 @@ export class CreateTask {
     }
 
     //Escuchar el campo seleccionado
-    this.form.controls.type.valueChanges.subscribe((type) => {
+    this.form.controls.taskType.valueChanges.subscribe((type) => {
       this.changeTaskType(type ?? null);
     });
 
-    this.changeTaskType(this.form.controls.type.value ?? null);
+    this.changeTaskType(this.form.controls.taskType.value ?? null);
   }
 
   onSubmit(): void {
     if (this.form.invalid) return;
 
-    const type = this.form.controls.type.value;
+    const type = this.form.controls.taskType.value;
 
     if (this.taskId && type !== FormTaskType.Linked) {
       const dto = this.buildBaseDto();
@@ -155,9 +155,9 @@ export class CreateTask {
     const dto: CreateRecurringTaskDto = {
       title: value.title ?? '',
       taskDescription: value.taskDescription ?? '',
-      dueTime: value.dueTime ?? '',
+      dueTime: value.dueTime ?? null,
       priority: value.priority ?? TaskPriority.Normal,
-      recurrenceRule: Number(value.recurrenceRule ?? 1),
+      recurrenceRule: Number(value.recurrenceRule ?? 7),
     };
 
     this.taskService.createRecurring(dto).subscribe(() => {
@@ -169,34 +169,55 @@ export class CreateTask {
   private createCompositeTask(): void {
     const value = this.form.value;
 
+    var formattedDueTime: string | null = null;
+
+    if (value.dueTime) {
+    const taskDate = value.dueTime ? new Date(value.dueTime) : new Date();
+    const [hours, minutes] = value.dueTime.split(':').map(Number);
+    
+    taskDate.setHours(hours, minutes, 0, 0);
+    formattedDueTime = taskDate.toISOString(); // Genera: "2026-05-28T14:30:00.000Z"
+  }
     const dto: CreateCompositeTaskDto = {
       title: value.title ?? '',
       taskDescription: value.taskDescription ?? '',
-      dueTime: value.dueTime ?? '',
+      dueTime: formattedDueTime,
       priority: value.priority ?? TaskPriority.Normal,
     };
 
     this.taskService.createComposite(dto).subscribe((createdTask) => {
       this.resetForm();
       //  crear subtarea.
-      this.router.navigate(['/tasks', createdTask.id, 'edit']);
+      this.router.navigate(['/tasks/', createdTask.id, 'edit']);
     });
   }
 
   private createCollaborativeTask(): void {
     const value = this.form.value;
 
+     var formattedDueTime: string | null = null;
+
+    if (value.dueTime) {
+    const taskDate = value.dueTime ? new Date(value.dueTime) : new Date();
+    const [hours, minutes] = value.dueTime.split(':').map(Number);
+    
+    taskDate.setHours(hours, minutes, 0, 0);
+    formattedDueTime = taskDate.toISOString(); // Genera: "2026-05-28T14:30:00.000Z"
+  }
+
     const dto: CreateCollaborativeTaskDto = {
       title: value.title ?? '',
       taskDescription: value.taskDescription ?? '',
-      dueTime: value.dueTime ?? '',
+      dueTime: formattedDueTime,
       priority: value.priority ?? TaskPriority.Normal,
     };
 
     this.taskService.createCollaborative(dto).subscribe((createdTask) => {
       this.resetForm();
+      
       // añadir colaborador.
-      this.router.navigate(['/tasks', createdTask.id, 'edit']);
+      // console.log(createdTask)
+      this.router.navigate(['/tasks']);
     });
   }
 
@@ -282,7 +303,7 @@ export class CreateTask {
       title: '',
       taskDescription: '',
       dueTime: null,
-      type: FormTaskType.Simple,
+      taskType: FormTaskType.Simple,
       priority: TaskPriority.Normal,
       recurrenceRule: null,
       dependsOnTaskId: null,
@@ -293,22 +314,22 @@ export class CreateTask {
   /////
 
   get title() {
-        return this.form.controls.title;
+    return this.form.controls.title;
   }
   get dueTime() {
-        return this.form.controls.dueTime;
+    return this.form.controls.dueTime;
   }
   get type() {
-        return this.form.controls.type;
+    return this.form.controls.taskType;
   }
   get recurrenceRule() {
-        return this.form.controls.recurrenceRule;
+    return this.form.controls.recurrenceRule;
   }
   get dependsOnTaskId() {
-        return this.form.controls.dependsOnTaskId;
+    return this.form.controls.dependsOnTaskId;
   }
   get linkedTaskOrder() {
-        return this.form.controls.linkedTaskOrder;
+    return this.form.controls.linkedTaskOrder;
   }
 
   cancel(): void {

@@ -32,9 +32,9 @@
   </div>
   <div class="mb-5">
     <div>
-    <label for="taskDescription" class="mb-2 block text-sm font-semibold text-gray-700"
-      >Descripción</label
-    >
+      <label for="taskDescription" class="mb-2 block text-sm font-semibold text-gray-700"
+        >Descripción</label
+      >
     </div>
     <textarea
       id="taskDescription"
@@ -46,26 +46,26 @@
   </div>
 
   <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-      <label for="priority" class="mb-2 block text-sm font-semibold text-gray-700">Prioridad *</label>
-       <select
-              id="priority"
-              class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              formControlName="priority"
-            >
-              <option [ngValue]="TaskPriority.Low">Baja</option>
-              <option [ngValue]="TaskPriority.Normal">Normal</option>
-              <option [ngValue]="TaskPriority.High">Alta</option>
-              <option [ngValue]="TaskPriority.Critical">Critica</option>
-            </select>
+    <label for="priority" class="mb-2 block text-sm font-semibold text-gray-700">Prioridad *</label>
+    <select
+      id="priority"
+      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+      formControlName="priority"
+    >
+      <option [ngValue]="TaskPriority.Low">Baja</option>
+      <option [ngValue]="TaskPriority.Normal">Normal</option>
+      <option [ngValue]="TaskPriority.High">Alta</option>
+      <option [ngValue]="TaskPriority.Critical">Critica</option>
+    </select>
   </div>
 
   <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
     <div>
-      <label for="type" class="mb-2 block text-sm font-semibold text-gray-700">Tipo *</label>
+      <label for="taskType" class="mb-2 block text-sm font-semibold text-gray-700">Tipo *</label>
       <select
-        id="type"
+        id="taskType"
         class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-        formControlName="type"
+        formControlName="taskType"
       >
         <option value="simpleTask">Simple</option>
         <option value="recurringTask">Recurrente</option>
@@ -74,7 +74,7 @@
         <option value="linkedTask">Vincular Tareas</option>
       </select>
     </div>
-    @switch (form.get('type')?.value) {
+    @switch (form.get('taskType')?.value) {
       @case ('recurringTask') {
         <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
           <div>
@@ -96,33 +96,37 @@
       }
       @case ('compositeTask') {
         <div class="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
-          <span>Debes crear primero la tarea contenedora</span>
+          <span>Estás creandpo la tarea contenedora</span>
         </div>
       }
       @case ('collaborativeTask') {
-              <div class="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
-<span>Debes crear primero la tarea contenedora</span>
-</div>
+        <div class="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+          <span>Estás creando la tarea, recuerda añadir los colaboradores.</span>
+        </div>
       }
       @case ('linkedTask') {
         <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
           <div>
             <label for="dependsOnTaskId" class="mb-2 block text-sm font-semibold text-gray-700"
-              >Vincular Tareas *</label>
-               <input
-            type="number"
-            id="dependsOnTaskId"
-                  class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-formControlName="dependsOnTaskId"/>
-<div>
-    <label for="linkedTaskOrder" class="mb-2 block text-sm font-semibold text-gray-700"
-              >Posición de la tarea en la lista</label>
-               <input
-            type="number"
-            id="linkedTaskOrder"
-                  class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-formControlName="linkedTaskOrder"/>
-</div>
+              >Vincular Tareas *</label
+            >
+            <input
+              type="number"
+              id="dependsOnTaskId"
+              class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              formControlName="dependsOnTaskId"
+            />
+            <div>
+              <label for="linkedTaskOrder" class="mb-2 block text-sm font-semibold text-gray-700"
+                >Posición de la tarea en la lista</label
+              >
+              <input
+                type="number"
+                id="linkedTaskOrder"
+                class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                formControlName="linkedTaskOrder"
+              />
+            </div>
 
             <!--
                 <select

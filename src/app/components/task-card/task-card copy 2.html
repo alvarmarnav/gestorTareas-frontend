@@ -22,7 +22,7 @@
       <!-- Titulo y tipo -->
       <h3 class="line-clamp-2 text-lg font-semibold text-gray-900">{{ task.title }}</h3>
       <div class="shrink-0">
-        @switch (task.type) {
+        @switch (task.taskType) {
           @case ('Simple') {
             <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Simple</span>
           }
