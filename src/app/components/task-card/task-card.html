@@ -2,58 +2,37 @@
   <!-- Cabecera -->
   <div class="mb-3">
     <div class="flex justify-between items-start gap-4 mb-2">
-    <h3 class="text-lg font-semibold mb-2 block wrap-break-all">{{ task.title }}</h3>
-    <div class="shrink-0 mt-1">
-@switch (task.taskType) {
-      @case (TaskType.Simple) {
+      <h3 class="text-lg font-semibold mb-2 block wrap-break-all">{{ task.title }}</h3>
+      <div class="shrink-0 mt-1">
+        @switch (task.taskType) {
+        @case (TaskType.Simple) {
         <span class="px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded">Simple</span>
-      }
-      @case (TaskType.Recurring) {
-        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded"
-          >Recurrente</span
-        >
-      }
+        }
+        @case (TaskType.Recurring) {
+        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded">Recurrente</span>
+        }
         @case (TaskType.Composite) {
         <span class="px-2 py-1 text-xs font-semibold bg-brown-600 text-white rounded">Tarea Contenedora</span>
-      }
-      @case (TaskType.SubTask) {
-        <span class="px-2 py-1 text-xs font-semibold bg-emerald-600 text-white rounded"
-          >SubTarea</span
-        >
-      }
+        }
+        @case (TaskType.SubTask) {
+        <span class="px-2 py-1 text-xs font-semibold bg-emerald-600 text-white rounded">SubTarea</span>
+        }
         @case (TaskType.Collaborative) {
-        <span class="px-2 py-1 text-xs font-semibold bg-orange-600 text-white rounded"
-          >Colaborativa</span
-        >
+        <span class="px-2 py-1 text-xs font-semibold bg-orange-600 text-white rounded">Colaborativa</span>
         }
         @case (TaskType.Linked) {
-        <span class="px-2 py-1 text-xs font-semibold bg-pink-600 text-white rounded"
-          >Linked</span
-        >
-      }
-      @default {
-        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded"
-          >Sin Determinar{{task.taskType}}</span
-        >
-      }
-    }
+        <span class="px-2 py-1 text-xs font-semibold bg-pink-600 text-white rounded">Linked</span>
+        }
+        @default {
+        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded">Sin
+          Determinar{{task.taskType}}</span>
+        }
+        }
+      </div>
     </div>
-    </div>
-        <div class="flex flex-wrap items-center gap-2">
-<span class="truncate">
-      @if (task.dueTime) {
-        {{ task.dueTime | date:'dd/MM/yyyy' }}
-      } @else {
-        Sin fecha
-      }
-    </span>
+    <div class="flex flex-wrap items-center gap-2">
 
-    <span class="truncate">
-      {{ task.dueTime | remainingDays }}
-    </span>
-
-
-    <!-- @switch (task.taskType) {
+      <!-- @switch (task.taskType) {
       @case (TaskType.Simple) {
         <span class="px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded">Simple</span>
       }
@@ -86,39 +65,48 @@
         >
       }
     } -->
+    </div>
   </div>
-</div>
   <!-- Metadatos -->
   <div class="flex justify-between items-center text-sm text-gray-500 mb-2">
     <span>{{ task.userName }}</span>
 
     @if (task.dueTime) {
-      <span class="rounded-full bg-green-400 px-3 py-1 text-xs font-medium text-white">{{ task.dueTime }}</span>
-    }
+    <span class="rounded-full bg-green-400 px-3 py-1 text-xs font-medium text-white">{{ task.dueTime | date:'dd/MM/yyyy'
+      }}</span>
+    @if(daysToEnd<=0){ <span class="rounded-full bg-red-400 px-3 py-1 text-xs font-medium text-white">Tarea
+      retrasada.</span>
+      }
+      }
+      @else {
+      <span class="rounded-full bg-blue-400 px-3 py-1 text-xs font-medium text-white">{{ noDueTime }}</span>
+
+      }
   </div>
 
   <p class="line-clamp-3 text-sm text-gray-600 mb-4">
-      {{ task.taskDescription }}
-    </p>
+    {{ task.taskDescription }}
+  </p>
 
   <!-- Footer -->
   <div class="flex justify-between items-center mt-4">
-    @if (task.isCompleted) {
-      <span class="px-2 py-1 text-xs font-semibold bg-green-600 text-white rounded"
-        >Completada</span
-      >
+    @if (task.taskStatus === TaskStatus.Completed) {
+    <span class="px-2 py-1 text-xs font-semibold bg-green-600 text-white rounded">Completada</span>
     }
     @else {
-      <span class="px-2 py-1 text-xs font-semibold bg-yellow-400 text-gray-800 rounded"
-        >Pendiente</span
-      >
+    <span class="px-2 py-1 text-xs font-semibold bg-yellow-400 text-gray-800 rounded">Pendiente</span>
     }
 
     <div class="flex gap-2">
-      <button (click)="onCompleteTask()"
-        class="px-3 py-1 text-sm bg-green-600 text-white rounded disabled:opacity-50"
+      <button (click)="onCompleteTask()" class="px-3 py-1 text-sm bg-green-600 text-white rounded disabled:opacity-50"
         [disabled]="task.isCompleted">Completar</button>
-      <button (click)="onDeleteTask()" class="px-3 py-1 text-sm bg-red-600 text-white rounded">Eliminar</button>
+      <button (click)="openDeleteModal($event)"
+        class="px-3 py-1 text-sm bg-red-600 text-white rounded">Eliminar</button>
     </div>
   </div>
 </div>
+
+<app-confirmation-delete-modal [isOpen]="showDeleteModal" title="Eliminar tarea"
+  message="¿Seguro que quieres eliminar esta tarea?" [itemName]="task.title" warning="Esta acción no se puede deshacer."
+  confirmText="Sí, eliminar" cancelText="Cancelar" (cancel)="closeDeleteModal()"
+  (confirm)="confirmDeleteTask()"></app-confirmation-delete-modal>

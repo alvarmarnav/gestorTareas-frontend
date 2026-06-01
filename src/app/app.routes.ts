@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { TaskList } from './components/task-list/task-list';
-import { TaskDetail } from './components/task-detail/task-detail';
+import { CreateSubtask } from './components/create-subtask/create-subtask';
 import { Login } from './components/login/login';
-import { noAuthGuard } from './guards/no-auth-guard';
-import { authGuard } from './guards/auth-guard';
 import { RegisterComponent } from './components/register-component/register-component';
+import { TaskDetail } from './components/task-detail/task-detail';
+import { authGuard } from './guards/auth-guard';
+import { noAuthGuard } from './guards/no-auth-guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -46,6 +46,11 @@ export const routes: Routes = [
     path: 'tasks/:id',
     canActivate: [authGuard],
     component: TaskDetail,
+  },
+  {
+  path:'tasks/:id/subtsk/new',
+  canActivate: [authGuard],
+  component: CreateSubtask,
   },
   {
     // Ruta raíz y comodín (ya definidas anteriormente)

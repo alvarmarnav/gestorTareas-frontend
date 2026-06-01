@@ -1,17 +1,11 @@
 import {
   Component,
   inject,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  signal,
-  SimpleChanges,
+  OnInit
 } from '@angular/core';
-import { TaskCard } from '../task-card/task-card';
-import { TaskdtoModel } from '../../models/taskdto.model';
-import { Subscription } from 'rxjs';
-import { TaskService } from '../../services/task.service';
 import { RouterModule } from '@angular/router';
+import { TaskService } from '../../services/task.service';
+import { TaskCard } from '../task-card/task-card';
 @Component({
   selector: 'app-task-list',
   standalone: true,

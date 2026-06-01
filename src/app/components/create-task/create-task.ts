@@ -1,9 +1,5 @@
 import { Component, inject } from '@angular/core';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { futureDateValidator } from '../../core/validators/future-date-validator.validator';
 import { CreateCompositeTaskDto } from '../../models/composite-task-dto/create-composite-task-dto.model';
@@ -13,9 +9,10 @@ import { FormTaskType } from '../../models/formtasktype';
 import { CreateRecurringTaskDto } from '../../models/recurring-task-dto/create-recurring-task-dto.model';
 import { TaskPriority } from '../../models/task-priority';
 import { TaskService } from '../../services/task.service';
+import { CreateSubtask } from '../create-subtask/create-subtask';
 @Component({
   selector: 'app-create-task',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CreateSubtask],
   templateUrl: './create-task.html',
   styleUrl: './create-task.css',
 })
@@ -23,15 +20,17 @@ export class CreateTask {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private taskService = inject(TaskService);
+  protected taskService = inject(TaskService);
 
   readonly FormTaskType = FormTaskType;
   readonly TaskPriority = TaskPriority;
 
   taskId: number | null = null;
+  showSubTaskModal = false;
+  createdCompositeTaskId: number | null = null;
 
   form = this.fb.group({
-    title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+    title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
     taskDescription: [''],
     dueTime: [null as string | null, futureDateValidator()],
     taskType: this.fb.nonNullable.control<FormTaskType>(FormTaskType.Simple, [Validators.required]),
@@ -41,6 +40,15 @@ export class CreateTask {
     dependsOnTaskId: this.fb.control<number | null>(null),
 
     linkedTaskOrder: this.fb.control<number | null>(null),
+    repeatUntilDate: this.fb.control<string | null>(null, [
+      Validators.required,
+      futureDateValidator(),
+    ]),
+    maxOcurrences: this.fb.control<number>(10, [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(100),
+    ]),
   });
 
   get formTitle(): string {
@@ -60,9 +68,28 @@ export class CreateTask {
           dueTime: task.dueTime,
           taskType: (task.taskType as FormTaskType) ?? FormTaskType.Simple,
           priority: Number(task.taskPriority) ?? TaskPriority.Normal,
+          repeatUntilDate: task.repeatUntilDate,
+          maxOcurrences: task.maxOcurrences,
           // recurrenceRule:task.recurrenceRule??7,
           // userId: task.userId
         });
+      });
+
+      this.form.get('taskType')?.valueChanges.subscribe((type) => {
+        const dueTime = this.form.get('dueTime');
+
+        if (type === FormTaskType.Recurring) {
+          dueTime?.disable();
+          dueTime?.setValue(null);
+          dueTime?.clearValidators();
+        } else {
+          dueTime?.enable();
+          dueTime?.setValidators([
+            /* tus validadores */
+          ]);
+        }
+
+        dueTime?.updateValueAndValidity();
       });
     }
 
@@ -153,9 +180,11 @@ export class CreateTask {
     const dto: CreateRecurringTaskDto = {
       title: value.title ?? '',
       taskDescription: value.taskDescription ?? '',
-      dueTime: value.dueTime ?? null,
+      dueTime: this.toIsoDateOrNull(value.dueTime),
       priority: value.priority ?? TaskPriority.Normal,
       recurrenceRule: Number(value.recurrenceRule ?? 7),
+      repeatUntilDate: this.toIsoDateOrNull(value.repeatUntilDate),
+      maxOcurrences: Number(value.maxOcurrences) ?? 10,
     };
 
     this.taskService.createRecurring(dto).subscribe(() => {
@@ -175,10 +204,19 @@ export class CreateTask {
     };
 
     this.taskService.createComposite(dto).subscribe((createdTask) => {
+      this.createdCompositeTaskId = createdTask.id;
+      this.showSubTaskModal = true;
       this.resetForm();
       //  crear subtarea.
-      this.router.navigate(['/tasks/', createdTask.id, 'edit']);
+      // this.router.navigate(['/tasks/', createdTask.id, 'edit']);
     });
+  }
+
+  closeSubtaskModal(): void {
+    this.showSubTaskModal = false;
+    this.createdCompositeTaskId = null;
+    this.resetForm();
+    this.router.navigate(['/tasks']);
   }
 
   private createCollaborativeTask(): void {
@@ -193,7 +231,7 @@ export class CreateTask {
 
     this.taskService.createCollaborative(dto).subscribe((createdTask) => {
       this.resetForm();
-      
+
       // añadir colaborador.
       // console.log(createdTask)
       this.router.navigate(['/tasks']);
@@ -235,9 +273,20 @@ export class CreateTask {
     switch (type) {
       case FormTaskType.Recurring:
         this.form.controls.recurrenceRule.setValidators([Validators.required, Validators.min(1)]);
+        this.form.controls.repeatUntilDate.setValidators([
+          Validators.required,
+          futureDateValidator(),
+        ]);
+        this.form.controls.maxOcurrences.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(100),
+        ]);
         if (!this.form.controls.recurrenceRule.value) {
           this.form.controls.recurrenceRule.setValue(7);
         }
+
+        this.form.controls.recurrenceRule.setValue(10);
 
         break;
 
@@ -261,20 +310,31 @@ export class CreateTask {
     this.form.controls.recurrenceRule.updateValueAndValidity();
     this.form.controls.dependsOnTaskId.updateValueAndValidity();
     this.form.controls.linkedTaskOrder.updateValueAndValidity();
+    this.form.controls.repeatUntilDate.updateValueAndValidity();
+    this.form.controls.maxOcurrences.updateValueAndValidity();
   }
 
   private clearDynamicValidators(): void {
     this.form.controls.recurrenceRule.clearValidators();
     this.form.controls.dependsOnTaskId.clearValidators();
     this.form.controls.linkedTaskOrder.clearValidators();
+    this.form.controls.repeatUntilDate.clearValidators();
+    this.form.controls.maxOcurrences.clearValidators();
+
+    this.form.controls.dueTime.setValidators([futureDateValidator()]);
 
     this.form.controls.recurrenceRule.setValue(null);
     this.form.controls.dependsOnTaskId.setValue(null);
     this.form.controls.linkedTaskOrder.setValue(null);
+    this.form.controls.repeatUntilDate.setValue(null);
+    this.form.controls.maxOcurrences.setValue(null);
 
     this.form.controls.recurrenceRule.updateValueAndValidity();
     this.form.controls.dependsOnTaskId.updateValueAndValidity();
     this.form.controls.linkedTaskOrder.updateValueAndValidity();
+    this.form.controls.repeatUntilDate.updateValueAndValidity();
+    this.form.controls.maxOcurrences.updateValueAndValidity();
+    this.form.controls.dueTime.updateValueAndValidity();
   }
 
   private resetForm(): void {
@@ -287,6 +347,8 @@ export class CreateTask {
       recurrenceRule: null,
       dependsOnTaskId: null,
       linkedTaskOrder: null,
+      repeatUntilDate: null,
+      maxOcurrences: null,
     });
   }
 
@@ -310,22 +372,19 @@ export class CreateTask {
   get linkedTaskOrder() {
     return this.form.controls.linkedTaskOrder;
   }
-
+  get repeatUntilDate() {
+    return this.form.controls.repeatUntilDate;
+  }
+  get maxOcurrences() {
+    return this.form.controls.maxOcurrences;
+  }
   cancel(): void {
     this.router.navigate(['/tasks']);
   }
 
-  private toIsoDateOrNull(value: string | null | undefined): string | null{
- if (!value) return null;
-  const date = new Date(`${value}T23:59:00`);
-  return date.toISOString();
+  private toIsoDateOrNull(value: string | null | undefined): string | null {
+    if (!value) return null;
+    const date = new Date(`${value}T23:59:00`);
+    return date.toISOString();
   }
 }
-
-// patchValue() — rellena solo los campos indicados
-// Los campos no mencionados mantienen su valor actual
-// this.form.patchValue({
-// title: 'Preparar informe trimestral',
-// type: 'Simple'
-// // descripcion, fechaLimite y usuarioId no cambian
-// });

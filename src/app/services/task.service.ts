@@ -1,15 +1,16 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { TaskdtoModel } from '../models/taskdto.model';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { PaginationDto } from '../models/pagination-dto.model';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
-import { CreateTaskDto } from '../models/create-task-dto.model';
-import { AuthService } from './auth.service';
 import { environment } from '../../Environments/environment';
-import { CreateRecurringTaskDto } from '../models/recurring-task-dto/create-recurring-task-dto.model';
 import { CreateCompositeTaskDto } from '../models/composite-task-dto/create-composite-task-dto.model';
-import { CreateTaskcollaboratorDto } from '../models/create-taskcollaborator-dto/create-taskcollaborator-dto.model';
 import { CreateCollaborativeTaskDto } from '../models/create-collaborativetask-dto.model';
+import { CreateTaskDto } from '../models/create-task-dto.model';
+import { PaginationDto } from '../models/pagination-dto.model';
+import { CreateRecurringTaskDto } from '../models/recurring-task-dto/create-recurring-task-dto.model';
+import { CreateSubTaskDto } from '../models/sub-task-dto/create-sub-task-dto.model';
+import { TaskStatus } from '../models/task-status';
+import { TaskdtoModel } from '../models/taskdto.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -50,8 +51,8 @@ export class TaskService {
     return this.http
       .get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
         params: {
-          actualPage:actualPage.toString(),
-          itemsPerPage:itemsPerPage.toString(),
+          actualPage: actualPage.toString(),
+          itemsPerPage: itemsPerPage.toString(),
         },
       })
       .pipe(
@@ -69,25 +70,31 @@ export class TaskService {
     return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/simple`, dto);
   }
   //poliformismo
-//   createSimple(dto: any) {
-//   return this.http.post<any>(`${this.baseUrl}/tasks/simple`, dto);
-// }
+  //   createSimple(dto: any) {
+  //   return this.http.post<any>(`${this.baseUrl}/tasks/simple`, dto);
+  // }
 
-createRecurring(dto: CreateRecurringTaskDto):Observable<TaskdtoModel> {
-  return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/recurring`, dto);
-}
+  createRecurring(dto: CreateRecurringTaskDto): Observable<TaskdtoModel[]> {
+    return this.http.post<TaskdtoModel[]>(`${this.baseUrl}/tasks/recurring`, dto);
+  }
 
-createComposite(dto: CreateCompositeTaskDto):Observable<TaskdtoModel> {
-  return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/composite`, dto);
-}
+  createComposite(dto: CreateCompositeTaskDto): Observable<TaskdtoModel> {
+    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/composite`, dto);
+  }
 
-createCollaborative(dto: CreateCollaborativeTaskDto):Observable<TaskdtoModel> {
-  return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/collaborative`, dto);
-}
+  createCollaborative(dto: CreateCollaborativeTaskDto): Observable<TaskdtoModel> {
+    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/collaborative`, dto);
+  }
+  createSubTask(compositeTaskId: number, dto: CreateSubTaskDto): Observable<TaskdtoModel> {
+    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/${compositeTaskId}/subtasks`, dto);
+  }
 
-addLinkedRelation(taskId: number, dto: { dependsOnTaskId: number; linkedTaskOrder: number }):Observable<TaskdtoModel> {
-  return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/${taskId}/linkedRelation`, dto);
-}
+  addLinkedRelation(
+    taskId: number,
+    dto: { dependsOnTaskId: number; linkedTaskOrder: number },
+  ): Observable<TaskdtoModel> {
+    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/${taskId}/linkedRelation`, dto);
+  }
 
   // PUT /api/tasks/:id — actualizar una task existente
   update(taskId: number, dto: CreateTaskDto): Observable<TaskdtoModel> {
@@ -97,7 +104,7 @@ addLinkedRelation(taskId: number, dto: { dependsOnTaskId: number; linkedTaskOrde
     );
   }
   // DELETE /api/tasks/:id — eliminar una task
-  delete(taskId: number):  Observable<void>{
+  delete(taskId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/tasks/${taskId}`).pipe(
       tap(() => this._tasks.update((tasks) => tasks.filter((t) => t.id !== taskId))),
       catchError((err) => this.handleError(err)),
@@ -110,7 +117,9 @@ addLinkedRelation(taskId: number, dto: { dependsOnTaskId: number; linkedTaskOrde
     return this.http.put<void>(`${this.baseUrl}/tasks/${taskId}/complete`, {}).pipe(
       tap(() =>
         this._tasks.update((tasks) =>
-          tasks.map((t) => (t.id === taskId ? { ...t, isCompleted: true } : t)),
+          tasks.map((t) =>
+            t.id === taskId ? { ...t, taskStatus: TaskStatus.Completed, isCompleted: true } : t,
+          ),
         ),
       ),
       catchError((err) => this.handleError(err)),
@@ -132,23 +141,24 @@ addLinkedRelation(taskId: number, dto: { dependsOnTaskId: number; linkedTaskOrde
     //     return of([]);
     //   }),
     // );
-    return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
-      params: {
-        actualPage: '1',
-        ItemsPerPage: '10'
-      }
-    }).pipe(
-      map((response) => response.data),
-      tap((tasks) => {
-        this._tasks.set(tasks);
-        this._loading.set(false);
-      }),
-      catchError((err) => {
-        this._loading.set(false);
-        this._error.set('Error al cargar las tareas');
-        return of([]);
-      }),
-    );
+    return this.http
+      .get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
+        params: {
+          actualPage: '1',
+          itemsPerPage: '10',
+        },
+      })
+      .pipe(
+        map((response) => response.data),
+        tap((tasks) => {
+          this._tasks.set(tasks);
+          this._loading.set(false);
+        }),
+        catchError((err) => {
+          this._loading.set(false);
+          this._error.set('Error al cargar las tareas');
+          return of([]);
+        }),
+      );
   }
-  }
-
+}
