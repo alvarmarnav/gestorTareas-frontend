@@ -100,6 +100,8 @@
     <div class="flex gap-2">
       <button (click)="onCompleteTask()" class="px-3 py-1 text-sm bg-green-600 text-white rounded disabled:opacity-50"
         [disabled]="task.isCompleted">Completar</button>
+      <a [routerLink]="['/tasks', task.id]" class="px-3 py-1 text-sm bg-slate-700 text-white rounded">Ver</a>
+      <a [routerLink]="['/tasks', task.id, 'edit']" class="px-3 py-1 text-sm bg-blue-600 text-white rounded">Editar</a>
       <button (click)="openDeleteModal($event)"
         class="px-3 py-1 text-sm bg-red-600 text-white rounded">Eliminar</button>
     </div>

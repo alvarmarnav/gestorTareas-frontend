@@ -30,7 +30,7 @@ export const routes: Routes = [
   {
     path: 'tasks',
     canActivate: [authGuard],
-    loadComponent:()=> import('./components/task-list/task-list').then((m=>m.TaskList)),
+    loadComponent: () => import('./components/task-list/task-list').then((m) => m.TaskList),
   },
   {
     path: 'tasks/newTask',
@@ -48,9 +48,9 @@ export const routes: Routes = [
     component: TaskDetail,
   },
   {
-  path:'tasks/:id/subtsk/new',
-  canActivate: [authGuard],
-  component: CreateSubtask,
+    path: 'tasks/:id/subtask/new',
+    canActivate: [authGuard],
+    component: CreateSubtask,
   },
   {
     // Ruta raíz y comodín (ya definidas anteriormente)

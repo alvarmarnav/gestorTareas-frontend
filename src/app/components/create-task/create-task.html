@@ -1,5 +1,11 @@
 <form class="mx-auto w-full max-w-2xl rounded-3xl border border-gray-200 bg-white p-6 shadow-lg" [formGroup]="form"
   (ngSubmit)="onSubmit()">
+  <h1 class="mb-5 text-2xl font-bold text-gray-800">{{ formTitle }}</h1>
+  @if (formError) {
+  <div class="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    {{ formError }}
+  </div>
+  }
   <div class="mb-5">
     <label for="title" class="mb-2 block text-sm font-semibold text-gray-700">Título *</label>
 
@@ -125,13 +131,14 @@
     @case (FormTaskType.Linked) {
     <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
       <div>
-        <label for="dependsOnTaskId" class="mb-2 block text-sm font-semibold text-gray-700">Vincular Tareas *</label>
+        <label for="dependsOnTaskId" class="mb-2 block text-sm font-semibold text-gray-700">Id de la tarea
+          padre*</label>
         <input type="number" id="dependsOnTaskId"
           class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           formControlName="dependsOnTaskId" />
         <div>
-          <label for="linkedTaskOrder" class="mb-2 block text-sm font-semibold text-gray-700">Posición de la tarea en la
-            lista</label>
+          <label for="linkedTaskOrder" class="mb-2 block text-sm font-semibold text-gray-700">Orden de
+            dependencia</label>
           <input type="number" id="linkedTaskOrder"
             class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             formControlName="linkedTaskOrder" />
@@ -154,11 +161,15 @@
     }
     }
     <div class="col">
-      <label for="dueTime" class="mb-2 block text-sm font-semibold text-gray-700">Fecha límite</label>
+      <label for="dueTime" class="mb-2 block text-sm font-semibold text-gray-700">{{ form.get('taskType')?.value ===
+        FormTaskType.Recurring ? 'Fecha inicial *' : 'Fecha límite' }}</label>
       <input type="date" id="dueTime"
         class="w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         [class.border-red-500]="dueTime?.invalid && dueTime?.touched"
         [class.border-gray-300]="!(dueTime?.invalid && dueTime?.touched)" formControlName="dueTime" />
+      @if (dueTime?.hasError('required') && dueTime?.touched) {
+      <div class="mt-2 text-sm text-red-600">La fecha inicial es obligatoria en tareas recurrentes</div>
+      }
       @if (dueTime?.hasError('overDueDate') && dueTime?.touched) {
       <div class="imt-2 text-sm text-red-600">La fecha no puede ser anterior a hoy</div>
       }

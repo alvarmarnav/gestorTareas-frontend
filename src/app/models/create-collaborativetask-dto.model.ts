@@ -1,8 +1,8 @@
-import { TaskPriority } from "./task-priority";
+import { TaskPriority } from './task-priority';
 
 export interface CreateCollaborativeTaskDto {
   title: string;
   taskDescription: string | null;
-  priority: TaskPriority |  TaskPriority.Normal;
+  priority: TaskPriority;
   dueTime: string | null;
 }

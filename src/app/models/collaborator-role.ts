@@ -1,5 +1,5 @@
 export enum CollaboratorRole {
-  Admin = 0,
+  TaskAdministrator = 0,
   Collaborator = 1,
   Viewer = 2,
 }

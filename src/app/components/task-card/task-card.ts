@@ -21,7 +21,7 @@ export class TaskCard implements OnChanges {
   readonly TaskStatus = TaskStatus;
   showDeleteModal = false;
   noDueTime: string = 'Sin fecha FIN';
-  @Output() taskCompleted = new EventEmitter<number>();
+  // @Output() taskCompleted = new EventEmitter<number>();
   completing: boolean = false;
   errorMessage: string = '';
 

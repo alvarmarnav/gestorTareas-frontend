@@ -18,8 +18,8 @@ export class CreateSubtask {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   protected taskService = inject(TaskService);
-  title: any;
-  dueTime: any;
+  // title: any;
+  // dueTime: any;
 
   @Input({ required: true }) compositeTaskId!: number;
   @Output() close = new EventEmitter<void>();
@@ -30,18 +30,18 @@ export class CreateSubtask {
   form = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
     taskDescription: [''],
-    priority: this.fb.nonNullable.control<TaskPriority>(
+    taskPriority: this.fb.nonNullable.control<TaskPriority>(
       this.TaskPriority.Normal,
       Validators.required,
     ),
     dueTime: [null as string | null, futureDateValidator()],
   });
 
-  getTitle() {
+  get title() {
     return this.form.controls.title;
   }
 
-  getDueTime() {
+  get dueTime() {
     return this.form.controls.dueTime;
   }
 
@@ -56,8 +56,8 @@ export class CreateSubtask {
     const dto: CreateSubTaskDto = {
       title: value.title ?? '',
       taskDescription: value.taskDescription ?? '',
-      priority: value.priority ?? TaskPriority.Normal,
-      dueTime: this.toIsoDateOrNull(value.dueTime),
+      taskPriority: value.taskPriority ?? TaskPriority.Normal,
+      dueTime: this.toIsoDateOrNull(value.dueTime) ?? null,
     };
 
     this.taskService.createSubTask(this.compositeTaskId, dto).subscribe(() => {

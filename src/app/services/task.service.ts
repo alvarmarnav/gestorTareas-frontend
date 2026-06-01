@@ -5,9 +5,11 @@ import { environment } from '../../Environments/environment';
 import { CreateCompositeTaskDto } from '../models/composite-task-dto/create-composite-task-dto.model';
 import { CreateCollaborativeTaskDto } from '../models/create-collaborativetask-dto.model';
 import { CreateTaskDto } from '../models/create-task-dto.model';
+import { FormTaskType } from '../models/formtasktype';
 import { PaginationDto } from '../models/pagination-dto.model';
 import { CreateRecurringTaskDto } from '../models/recurring-task-dto/create-recurring-task-dto.model';
 import { CreateSubTaskDto } from '../models/sub-task-dto/create-sub-task-dto.model';
+import { TaskPriority } from '../models/task-priority';
 import { TaskStatus } from '../models/task-status';
 import { TaskdtoModel } from '../models/taskdto.model';
 import { AuthService } from './auth.service';
@@ -27,9 +29,44 @@ export class TaskService {
 
   // Signals públicos de solo lectura
   readonly tasks = this._tasks.asReadonly();
-  readonly totalPending = computed(() => this._tasks().filter((t) => !t.isCompleted).length);
+  readonly totalPending = computed(
+    () => this._tasks().filter((t) => t.taskStatus !== TaskStatus.Completed).length,
+  );
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
+
+  readonly totalPendingTasks = this.totalPending;
+
+  private normalizeTask(raw: any): TaskdtoModel {
+    const status = Number(raw?.status ?? raw?.taskStatus ?? TaskStatus.Pending) as TaskStatus;
+    const priority = Number(
+      raw?.priority ?? raw?.taskPriority ?? TaskPriority.Normal,
+    ) as TaskPriority;
+
+    return {
+      ...raw,
+      taskType: Number(raw?.taskType ?? FormTaskType.Simple) as FormTaskType,
+      taskDescription: raw?.taskDescription ?? null,
+      priority,
+      status,
+      dueTime: raw?.dueTime ?? null,
+      cancelReason: raw?.cancelReason ?? null,
+      subTasksList: Array.isArray(raw?.subTasksList)
+        ? raw.subTasksList.map((st: any) => this.normalizeTask(st))
+        : undefined,
+      taskCollaborators: raw?.taskCollaborators ?? raw?.userList ?? undefined,
+      recurrenceRule: raw?.recurrenceRule ?? null,
+      recurringTasksCount: raw?.recurringTasksCount ?? null,
+      recurringSeriesId: raw?.recurringSeriesId ?? null,
+      parentCompositeTaskId: raw?.parentCompositeTaskId ?? null,
+      linkedTaskOrder: raw?.linkedTaskOrder ?? null,
+      isCompleted: status === TaskStatus.Completed,
+    } as TaskdtoModel;
+  }
+
+  private normalizeTasks(raw: any[]): TaskdtoModel[] {
+    return (raw ?? []).map((task) => this.normalizeTask(task));
+  }
 
   // Función reutilizable para manejar errores HTTP
   private handleError(error: HttpErrorResponse) {
@@ -49,25 +86,29 @@ export class TaskService {
   // GET /api/tasks — devuelve Observable<PaginadoDto<TareaDto>>
   getTasks(actualPage: number, itemsPerPage: number): Observable<TaskdtoModel[]> {
     return this.http
-      .get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
+      .get<PaginationDto<any>>(`${this.baseUrl}/tasks`, {
         params: {
           actualPage: actualPage.toString(),
           itemsPerPage: itemsPerPage.toString(),
         },
       })
       .pipe(
-        map((response) => response.data),
+        map((response) => this.normalizeTasks(response.data)),
         catchError((error) => this.handleError(error)),
       );
   }
   // GET /api/tasks/:id — obtener una task por id
   getTaskById(id: number) {
-    return this.http.get<TaskdtoModel>(`${this.baseUrl}/tasks/${id}`);
+    return this.http
+      .get<TaskdtoModel>(`${this.baseUrl}/tasks/${id}`)
+      .pipe(map((task) => this.normalizeTask(task)));
   }
 
   // POST /api/tasks — crear una task nueva
   create(dto: CreateTaskDto): Observable<TaskdtoModel> {
-    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/simple`, dto);
+    return this.http
+      .post<any>(`${this.baseUrl}/tasks/simple`, dto)
+      .pipe(map((task) => this.normalizeTask(task)));
   }
   //poliformismo
   //   createSimple(dto: any) {
@@ -75,33 +116,46 @@ export class TaskService {
   // }
 
   createRecurring(dto: CreateRecurringTaskDto): Observable<TaskdtoModel[]> {
-    return this.http.post<TaskdtoModel[]>(`${this.baseUrl}/tasks/recurring`, dto);
+    return this.http.post<any[]>(`${this.baseUrl}/tasks/recurring`, dto);
   }
 
   createComposite(dto: CreateCompositeTaskDto): Observable<TaskdtoModel> {
-    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/composite`, dto);
+    return this.http
+      .post<any>(`${this.baseUrl}/tasks/composite`, dto)
+      .pipe(map((task) => this.normalizeTask(task)));
   }
 
   createCollaborative(dto: CreateCollaborativeTaskDto): Observable<TaskdtoModel> {
-    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/collaborative`, dto);
+    return this.http
+      .post<any>(`${this.baseUrl}/tasks/collaborative`, dto)
+      .pipe(map((task) => this.normalizeTask(task)));
   }
   createSubTask(compositeTaskId: number, dto: CreateSubTaskDto): Observable<TaskdtoModel> {
-    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/${compositeTaskId}/subtasks`, dto);
+    return this.http
+      .post<any>(`${this.baseUrl}/tasks/${compositeTaskId}/subtasks`, dto)
+      .pipe(map((task) => this.normalizeTask(task)));
   }
 
   addLinkedRelation(
     taskId: number,
     dto: { dependsOnTaskId: number; linkedTaskOrder: number },
-  ): Observable<TaskdtoModel> {
+  ): Observable<any> {
     return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/${taskId}/linkedRelation`, dto);
   }
-
+  getLinkedTasks(taskId: number): Observable<TaskdtoModel[]> {
+    return this.http
+      .get<any[]>(`${this.baseUrl}/tasks/${taskId}/linkable`)
+      .pipe(map((tasks) => this.normalizeTasks(tasks)));
+  }
   // PUT /api/tasks/:id — actualizar una task existente
-  update(taskId: number, dto: CreateTaskDto): Observable<TaskdtoModel> {
-    return this.http.put<TaskdtoModel>(
+  update(taskId: number, dto: Partial<CreateTaskDto>): Observable<void> {
+    return this.http.put<void>(
       `${this.baseUrl}/tasks/${taskId}`,
       dto, // PUT devuelve 204 No Content — por eso void como tipo
     );
+  }
+  deleteLinkedRelation(taskId: number, linkedTaskId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/tasks/${taskId}/linkedRelation/${linkedTaskId}`);
   }
   // DELETE /api/tasks/:id — eliminar una task
   delete(taskId: number): Observable<void> {
@@ -110,8 +164,6 @@ export class TaskService {
       catchError((err) => this.handleError(err)),
     );
   }
-
-  readonly totalPendingTasks = computed(() => this._tasks().filter((t) => !t.isCompleted).length);
 
   complete(taskId: number): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/tasks/${taskId}/complete`, {}).pipe(
@@ -126,30 +178,18 @@ export class TaskService {
     );
   }
 
-  loadTasks() {
+  loadTasks(): Observable<TaskdtoModel[]> {
     this._loading.set(true);
     this._error.set(null);
-    // return this.http.get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`).pipe(
-    //   map((response) => response.data),
-    //   tap((tasks) => {
-    //     this._tasks.set(tasks);
-    //     this._loading.set(false);
-    //   }),
-    //   catchError((err) => {
-    //     this._loading.set(false);
-    //     this._error.set('Error al cargar las tareas');
-    //     return of([]);
-    //   }),
-    // );
     return this.http
-      .get<PaginationDto<TaskdtoModel>>(`${this.baseUrl}/tasks`, {
+      .get<PaginationDto<any>>(`${this.baseUrl}/tasks`, {
         params: {
           actualPage: '1',
           itemsPerPage: '10',
         },
       })
       .pipe(
-        map((response) => response.data),
+        map((response) => this.normalizeTasks(response.data)),
         tap((tasks) => {
           this._tasks.set(tasks);
           this._loading.set(false);
@@ -157,6 +197,7 @@ export class TaskService {
         catchError((err) => {
           this._loading.set(false);
           this._error.set('Error al cargar las tareas');
+          console.error(err);
           return of([]);
         }),
       );

@@ -28,6 +28,7 @@ export class CreateTask {
   taskId: number | null = null;
   showSubTaskModal = false;
   createdCompositeTaskId: number | null = null;
+  formError = '';
 
   form = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
@@ -36,19 +37,10 @@ export class CreateTask {
     taskType: this.fb.nonNullable.control<FormTaskType>(FormTaskType.Simple, [Validators.required]),
     priority: this.fb.nonNullable.control<TaskPriority>(TaskPriority.Normal, [Validators.required]),
     recurrenceRule: this.fb.control<number | null>(null),
-
     dependsOnTaskId: this.fb.control<number | null>(null),
-
     linkedTaskOrder: this.fb.control<number | null>(null),
-    repeatUntilDate: this.fb.control<string | null>(null, [
-      Validators.required,
-      futureDateValidator(),
-    ]),
-    maxOcurrences: this.fb.control<number>(10, [
-      Validators.required,
-      Validators.min(1),
-      Validators.max(100),
-    ]),
+    repeatUntilDate: this.fb.control<string | null>(null),
+    maxOcurrences: this.fb.control<number | null>(null),
   });
 
   get formTitle(): string {
@@ -67,30 +59,29 @@ export class CreateTask {
           taskDescription: task.taskDescription ?? '',
           dueTime: task.dueTime,
           taskType: (task.taskType as FormTaskType) ?? FormTaskType.Simple,
-          priority: Number(task.taskPriority) ?? TaskPriority.Normal,
-          repeatUntilDate: task.repeatUntilDate,
-          maxOcurrences: task.maxOcurrences,
+          priority: Number(task.taskPriority) ?? (TaskPriority.Normal as TaskPriority),
+          recurrenceRule: task.recurrenceRule ?? null,
           // recurrenceRule:task.recurrenceRule??7,
           // userId: task.userId
         });
       });
 
-      this.form.get('taskType')?.valueChanges.subscribe((type) => {
-        const dueTime = this.form.get('dueTime');
+      // this.form.get('taskType')?.valueChanges.subscribe((type) => {
+      //   const dueTime = this.form.get('dueTime');
 
-        if (type === FormTaskType.Recurring) {
-          dueTime?.disable();
-          dueTime?.setValue(null);
-          dueTime?.clearValidators();
-        } else {
-          dueTime?.enable();
-          dueTime?.setValidators([
-            /* tus validadores */
-          ]);
-        }
+      //   if (type === FormTaskType.Recurring) {
+      //     dueTime?.disable();
+      //     dueTime?.setValue(null);
+      //     dueTime?.clearValidators();
+      //   } else {
+      //     dueTime?.enable();
+      //     dueTime?.setValidators([
+      //       /* tus validadores */
+      //     ]);
+      //   }
 
-        dueTime?.updateValueAndValidity();
-      });
+      //   dueTime?.updateValueAndValidity();
+      // });
     }
 
     //Escuchar el campo seleccionado
@@ -102,7 +93,12 @@ export class CreateTask {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) return;
+    this.formError = '';
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
     const type = this.form.controls.taskType.value;
 
@@ -184,7 +180,7 @@ export class CreateTask {
       priority: value.priority ?? TaskPriority.Normal,
       recurrenceRule: Number(value.recurrenceRule ?? 7),
       repeatUntilDate: this.toIsoDateOrNull(value.repeatUntilDate),
-      maxOcurrences: Number(value.maxOcurrences) ?? 10,
+      maxOcurrences: Number(value.maxOcurrences ?? 10),
     };
 
     this.taskService.createRecurring(dto).subscribe(() => {
@@ -240,7 +236,8 @@ export class CreateTask {
 
   private createLinkedRelation(): void {
     if (!this.taskId) {
-      console.error('Crear una relación entre tareas solo puede hacerse si ya existen las tareas.');
+      this.formError =
+        'Crear una relación entre tareas solo puede hacerse si ya existen las tareas.';
       return;
     }
     const value = this.form.value;
@@ -272,7 +269,12 @@ export class CreateTask {
 
     switch (type) {
       case FormTaskType.Recurring:
-        this.form.controls.recurrenceRule.setValidators([Validators.required, Validators.min(1)]);
+        this.form.controls.dueTime.setValidators([Validators.required, futureDateValidator()]);
+        this.form.controls.recurrenceRule.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(365),
+        ]);
         this.form.controls.repeatUntilDate.setValidators([
           Validators.required,
           futureDateValidator(),
@@ -286,7 +288,9 @@ export class CreateTask {
           this.form.controls.recurrenceRule.setValue(7);
         }
 
-        this.form.controls.recurrenceRule.setValue(10);
+        if (!this.form.controls.maxOcurrences.value) {
+          this.form.controls.maxOcurrences.setValue(10);
+        }
 
         break;
 
@@ -312,6 +316,7 @@ export class CreateTask {
     this.form.controls.linkedTaskOrder.updateValueAndValidity();
     this.form.controls.repeatUntilDate.updateValueAndValidity();
     this.form.controls.maxOcurrences.updateValueAndValidity();
+    this.form.controls.dueTime.updateValueAndValidity();
   }
 
   private clearDynamicValidators(): void {
@@ -351,8 +356,6 @@ export class CreateTask {
       maxOcurrences: null,
     });
   }
-
-  /////
 
   get title() {
     return this.form.controls.title;

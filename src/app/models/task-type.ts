@@ -4,6 +4,7 @@ export enum TaskType {
   Composite = 2,
   SubTask = 3,
   Collaborative = 4,
+  Linked = 5,
   // Simple = 'simpleTask',
   // Recurring = 'recurringTask',
   // Composite = 'compositeTask',
