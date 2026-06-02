@@ -38,6 +38,12 @@ export const routes: Routes = [
     loadComponent: () => import('./components/create-task/create-task').then((m) => m.CreateTask),
   },
   {
+    path: 'tasks/type/:type',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/task-type-list/task-type-list').then((m) => m.TaskTypeList),
+  },
+  {
     path: 'tasks/:id/edit',
     canActivate: [authGuard],
     loadComponent: () => import('./components/create-task/create-task').then((m) => m.CreateTask),

@@ -174,14 +174,14 @@ export class TaskService {
     );
   }
 
-  loadTasks(): Observable<TaskdtoModel[]> {
+  loadTasks(actualPage: number = 1, itemsPerPage: number = 100): Observable<TaskdtoModel[]> {
     this._loading.set(true);
     this._error.set(null);
     return this.http
       .get<PaginationDto<any>>(`${this.baseUrl}/tasks`, {
         params: {
-          actualPage: '1',
-          itemsPerPage: '10',
+          actualPage: actualPage.toString(),
+          itemsPerPage: itemsPerPage.toString(),
         },
       })
       .pipe(
@@ -197,5 +197,23 @@ export class TaskService {
           return of([]);
         }),
       );
+  }
+  loadLinkedTasks(): Observable<TaskdtoModel[]> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    return this.http.get<any[]>(`${this.baseUrl}/tasks/linked`).pipe(
+      map((tasks) => this.normalizeTasks(tasks)),
+      tap((tasks) => {
+        this._tasks.set(tasks);
+        this._loading.set(false);
+      }),
+      catchError((err) => {
+        this._loading.set(false);
+        this._error.set('Error al cargar las tareas vinculadas');
+        console.error(err);
+        return of([]);
+      }),
+    );
   }
 }

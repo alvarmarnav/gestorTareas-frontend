@@ -19,6 +19,7 @@ export interface TaskdtoModel {
   recurringTasksCount?: number | null;
   recurringSeriesId?: number | string | null;
   parentCompositeTaskId?: number | null;
+  parentCompositeTaskTitle?: string | null;
   linkedTaskOrder?: number | null;
   isCompleted?: boolean;
   userName: string | null;

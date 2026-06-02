@@ -3,29 +3,50 @@
   <div class="mb-3">
     <div class="flex justify-between items-start gap-4 mb-2">
       <h3 class="text-lg font-semibold mb-2 block wrap-break-all">{{ task.title }}</h3>
-      <div class="shrink-0 mt-1">
+      <div class="mt-1 flex max-w-[55%] shrink-0 flex-wrap justify-end gap-2">
         @switch (task.taskType) {
         @case (TaskType.Simple) {
-        <span class="px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded">Simple</span>
+        <span class="rounded bg-blue-600 px-2 py-1 text-xs font-semibold text-white">
+          Simple
+        </span>
         }
         @case (TaskType.Recurring) {
-        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded">Recurrente</span>
+        <span class="rounded bg-gray-600 px-2 py-1 text-xs font-semibold text-white">
+          Recurrente
+        </span>
         }
         @case (TaskType.Composite) {
-        <span class="px-2 py-1 text-xs font-semibold bg-brown-600 text-white rounded">Tarea Contenedora</span>
+        <span class="rounded bg-amber-700 px-2 py-1 text-xs font-semibold text-white">
+          Composite
+        </span>
         }
         @case (TaskType.SubTask) {
-        <span class="px-2 py-1 text-xs font-semibold bg-emerald-600 text-white rounded">SubTarea</span>
+        <span class="rounded bg-emerald-600 px-2 py-1 text-xs font-semibold text-white">
+          SubTarea
+        </span>
+
+        @if (parentCompositeTaskTitle) {
+        <span
+          class="inline-block max-w-[9rem] truncate rounded bg-zinc-100 px-2 py-1 text-xs font-semibold text-zinc-700 ring-1 ring-zinc-200"
+          [title]="'Padre: ' + parentCompositeTaskTitle">
+          Padre: {{ parentCompositeTaskTitle }}
+        </span>
+        }
         }
         @case (TaskType.Collaborative) {
-        <span class="px-2 py-1 text-xs font-semibold bg-orange-600 text-white rounded">Colaborativa</span>
+        <span class="rounded bg-orange-600 px-2 py-1 text-xs font-semibold text-white">
+          Colaborativa
+        </span>
         }
         @case (TaskType.Linked) {
-        <span class="px-2 py-1 text-xs font-semibold bg-pink-600 text-white rounded">Linked</span>
+        <span class="rounded bg-pink-600 px-2 py-1 text-xs font-semibold text-white">
+          Linked
+        </span>
         }
         @default {
-        <span class="px-2 py-1 text-xs font-semibold bg-gray-600 text-white rounded">Sin
-          Determinar{{task.taskType}}</span>
+        <span class="rounded bg-gray-600 px-2 py-1 text-xs font-semibold text-white">
+          Sin determinar {{ task.taskType }}
+        </span>
         }
         }
       </div>

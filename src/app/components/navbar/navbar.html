@@ -55,21 +55,25 @@
             Crear tarea
           </a>
 
-          <!-- Ajusta estas rutas si en tu app tienen otro nombre -->
-          <a routerLink="/tasks/composite"
+          <a routerLink="/tasks/type/composite"
             routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" (click)="closeMenu()"
             class="block px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
             Tareas compuestas
           </a>
+          <a routerLink="/tasks/type/collaborative"
+            routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" (click)="closeMenu()"
+            class="block px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
+            Tareas Colaborativas
+          </a>
 
-          <a routerLink="/tasks/recurring"
+          <a routerLink="/tasks/type/recurring"
             routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" (click)="closeMenu()"
             class="block px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
             Tareas recurrentes
           </a>
 
-          <a routerLink="/tasks/linked" routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
-            (click)="closeMenu()"
+          <a routerLink="/tasks/type/linked"
+            routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" (click)="closeMenu()"
             class="block px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
             Tareas vinculadas
           </a>

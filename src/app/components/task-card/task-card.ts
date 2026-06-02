@@ -24,6 +24,10 @@ export class TaskCard implements OnChanges {
   completing: boolean = false;
   errorMessage: string = '';
 
+  get parentCompositeTaskTitle(): string | null {
+    return this.task.parentCompositeTaskTitle?.trim() || null;
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['task']) {
       const prevTask = changes['task'].previousValue;
