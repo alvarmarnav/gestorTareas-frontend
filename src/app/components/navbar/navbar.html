@@ -1,23 +1,112 @@
 @if (!isLoginPage()) {
 <nav
-  class="fixed top-0 left-0 z-50 flex w-full items-center justify-between bg-white/30 py-2 backdrop-blur-xl transition-all dark:bg-transparent md:p-3">
-  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
-    <a routerLink="/tasks" class="text-2xl font-bold text-zinc-950">TM</a>
+  class="fixed left-0 top-0 z-50 w-full border-b border-white/20 bg-white/70 px-4 py-2 shadow-sm backdrop-blur-xl transition-all dark:border-zinc-800 dark:bg-zinc-950/70 md:px-6 md:py-3">
+
+  <div class="mx-auto flex max-w-7xl items-center justify-between">
+
+    <!-- LOGO O INICIO -->
+    <a routerLink="/tasks" aria-label="Ir a tareas"
+      class="flex items-center gap-2 rounded-2xl transition hover:scale-105">
+
+      <!-- LOGO TM -->
+      <div
+        class="flex h-11 w-11 items-center justify-center rounded-2xl bg-zinc-950 text-lg font-black tracking-tight text-white shadow-md ring-1 ring-zinc-200 dark:bg-white dark:text-zinc-950 dark:ring-zinc-700">
+        TM
+      </div>
+
+      <span class="hidden text-lg font-black tracking-tight text-zinc-950 dark:text-white sm:inline">
+        TaskManager
+      </span>
+    </a>
 
     @if (authService.isAuthenticated()) {
-    <div class="flex items-center gap-2">
-      <a routerLink="/tasks" routerLinkActive="bg-blue-100 text-blue-700"
-        class="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">
-        Tareas
+
+    <!-- A LA DERECHA -->
+    <div class="relative flex items-center gap-2 md:gap-3">
+
+      <!-- MENÚ DESPLEGABLE -->
+      <div class="relative">
+        <button type="button" (click)="toggleMenu()"
+          class="flex h-11 items-center justify-center rounded-full border border-zinc-200 bg-white px-3 text-sm font-semibold text-zinc-700 shadow-sm transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800 md:h-auto md:rounded-xl md:px-4 md:py-2">
+
+          <!-- Texto -->
+          <span class="hidden md:inline">Menú</span>
+
+          <!-- BURGER móvil -->
+          <svg class="h-5 w-5 md:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+        </button>
+
+        @if (menuOpen) {
+        <div
+          class="absolute right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl ring-1 ring-black/5 dark:border-zinc-700 dark:bg-zinc-900">
+
+          <a routerLink="/tasks" routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+            [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()"
+            class="block px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
+            Tareas
+          </a>
+
+          <a routerLink="/tasks/newTask" routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+            (click)="closeMenu()"
+            class="block px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
+            Crear tarea
+          </a>
+
+          <!-- Ajusta estas rutas si en tu app tienen otro nombre -->
+          <a routerLink="/tasks/composite"
+            routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" (click)="closeMenu()"
+            class="block px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
+            Tareas compuestas
+          </a>
+
+          <a routerLink="/tasks/recurring"
+            routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" (click)="closeMenu()"
+            class="block px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
+            Tareas recurrentes
+          </a>
+
+          <a routerLink="/tasks/linked" routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+            (click)="closeMenu()"
+            class="block px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
+            Tareas vinculadas
+          </a>
+        </div>
+        }
+      </div>
+
+      <!-- ANADIR TAREA -->
+      <a routerLink="/tasks/newTask" routerLinkActive="bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+        aria-label="Nueva tarea"
+        class="flex h-11 items-center justify-center rounded-full bg-blue-600 px-0 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 md:h-auto md:rounded-xl md:px-4 md:py-2">
+
+        <!-- Texto -->
+        <span class="hidden md:inline">Nueva tarea</span>
+
+        <!-- ICONO + -->
+        <svg class="h-5 w-11 md:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+        </svg>
       </a>
-      <a routerLink="/tasks/newTask" routerLinkActive="bg-blue-100 text-blue-700"
-        class="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">
-        Nueva tarea
-      </a>
-      <button type="button"
-        class="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-600 hover:text-white"
+
+      <!-- SALIR-->
+      <button type="button" aria-label="Cerrar sesión"
+        class="flex h-11 items-center justify-center rounded-full border border-red-200 bg-white px-0 text-sm font-bold text-red-600 shadow-sm transition hover:bg-red-600 hover:text-white dark:border-red-900 dark:bg-zinc-900 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white md:h-auto md:rounded-xl md:px-4 md:py-2"
         (click)="onLogout()">
-        Salir
+
+        <!-- Texto -->
+        <span class="hidden md:inline">Salir</span>
+
+        <!-- Exit ICONO -->
+        <svg class="h-5 w-11 md:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H9.75m0 0 3-3m-3 3 3 3" />
+        </svg>
       </button>
     </div>
     }
