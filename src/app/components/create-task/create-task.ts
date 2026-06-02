@@ -61,27 +61,8 @@ export class CreateTask {
           taskType: (task.taskType as FormTaskType) ?? FormTaskType.Simple,
           priority: Number(task.taskPriority) ?? (TaskPriority.Normal as TaskPriority),
           recurrenceRule: task.recurrenceRule ?? null,
-          // recurrenceRule:task.recurrenceRule??7,
-          // userId: task.userId
         });
       });
-
-      // this.form.get('taskType')?.valueChanges.subscribe((type) => {
-      //   const dueTime = this.form.get('dueTime');
-
-      //   if (type === FormTaskType.Recurring) {
-      //     dueTime?.disable();
-      //     dueTime?.setValue(null);
-      //     dueTime?.clearValidators();
-      //   } else {
-      //     dueTime?.enable();
-      //     dueTime?.setValidators([
-      //       /* tus validadores */
-      //     ]);
-      //   }
-
-      //   dueTime?.updateValueAndValidity();
-      // });
     }
 
     //Escuchar el campo seleccionado
@@ -112,16 +93,6 @@ export class CreateTask {
       return;
     }
 
-    // const dto = this.form.value as CreateTaskDto;
-
-    // const operation = this.taskId
-    //   ? this.taskService.update(this.taskId, dto)
-    //   : this.taskService.create(dto);
-    // operation.subscribe(() => {
-    //   this.form.reset();
-    //   this.router.navigate(['/tasks']);
-    // });
-
     switch (type) {
       case FormTaskType.Simple:
         this.create();
@@ -149,7 +120,6 @@ export class CreateTask {
     }
   }
 
-  ///
   private buildBaseDto(): CreateTaskDto {
     const value = this.form.value;
 

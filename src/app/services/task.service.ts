@@ -110,10 +110,6 @@ export class TaskService {
       .post<any>(`${this.baseUrl}/tasks/simple`, dto)
       .pipe(map((task) => this.normalizeTask(task)));
   }
-  //poliformismo
-  //   createSimple(dto: any) {
-  //   return this.http.post<any>(`${this.baseUrl}/tasks/simple`, dto);
-  // }
 
   createRecurring(dto: CreateRecurringTaskDto): Observable<TaskdtoModel[]> {
     return this.http.post<any[]>(`${this.baseUrl}/tasks/recurring`, dto);

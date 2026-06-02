@@ -5,9 +5,4 @@ export enum TaskType {
   SubTask = 3,
   Collaborative = 4,
   Linked = 5,
-  // Simple = 'simpleTask',
-  // Recurring = 'recurringTask',
-  // Composite = 'compositeTask',
-  // Collaborative = 'collaborativeTask',
-  // Linked = 'linkedTask',
 }

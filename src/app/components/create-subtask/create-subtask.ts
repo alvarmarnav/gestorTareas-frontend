@@ -18,8 +18,6 @@ export class CreateSubtask {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   protected taskService = inject(TaskService);
-  // title: any;
-  // dueTime: any;
 
   @Input({ required: true }) compositeTaskId!: number;
   @Output() close = new EventEmitter<void>();
