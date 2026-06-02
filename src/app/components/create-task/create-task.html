@@ -90,7 +90,7 @@
           }
         </div>
         }
-        <!-- Fin bloque if -->
+
       </div>
       <div>
         <label for="maxOcurrences" class="mb-2 block text-sm font-semibold text-gray-700">
@@ -106,16 +106,7 @@
         </div>
         }
       </div>
-      <!-- <div class="hidden">
-        <label for="dueTime" class="mb-2 block text-sm font-semibold text-gray-700">Fecha límite</label>
-        <input type="date" id="dueTime"
-          class="w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          [class.border-red-500]="dueTime?.invalid && dueTime?.touched"
-          [class.border-gray-300]="!(dueTime?.invalid && dueTime?.touched)" formControlName="dueTime" />
-        @if (dueTime?.hasError('overDueDate') && dueTime?.touched) {
-        <div class="imt-2 text-sm text-red-600">La fecha no puede ser anterior a hoy</div>
-        }
-      </div> -->
+
     </div>
     }
     @case (FormTaskType.Composite) {
@@ -144,18 +135,7 @@
             formControlName="linkedTaskOrder" />
         </div>
 
-        <!--
-                <select
-              id="dependsOnTaskId"
-              class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              formControlName="dependsOnTaskId
-            >
-              <option value="1">Diaria</option>
-              <option value="7">Semanal</option>
-              <option value="15">Quincenal</option>
-              <option value="30">Mensual</option>
-            </select>
-        -->
+
       </div>
     </div>
     }

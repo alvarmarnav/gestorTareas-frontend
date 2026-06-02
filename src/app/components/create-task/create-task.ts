@@ -173,8 +173,6 @@ export class CreateTask {
       this.createdCompositeTaskId = createdTask.id;
       this.showSubTaskModal = true;
       this.resetForm();
-      //  crear subtarea.
-      // this.router.navigate(['/tasks/', createdTask.id, 'edit']);
     });
   }
 
@@ -198,8 +196,6 @@ export class CreateTask {
     this.taskService.createCollaborative(dto).subscribe((createdTask) => {
       this.resetForm();
 
-      // añadir colaborador.
-      // console.log(createdTask)
       this.router.navigate(['/tasks']);
     });
   }
