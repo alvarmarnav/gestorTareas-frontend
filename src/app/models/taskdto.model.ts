@@ -21,6 +21,10 @@ export interface TaskdtoModel {
   parentCompositeTaskId?: number | null;
   parentCompositeTaskTitle?: string | null;
   linkedTaskOrder?: number | null;
+  collaboratorsCount?: number;
+  hasCollaborators?: boolean;
+  linkedRelationsCount?: number;
+  hasLinkedRelations?: boolean;
   isCompleted?: boolean;
   userName: string | null;
 }

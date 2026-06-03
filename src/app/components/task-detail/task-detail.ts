@@ -6,15 +6,18 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CollaboratorRole } from '../../models/collaborator-role';
 import { CreateTaskcollaboratorDto } from '../../models/create-taskcollaborator-dto/create-taskcollaborator-dto.model';
 import { FormTaskType } from '../../models/formtasktype';
+import { LinkedTaskResponseDtoModule } from '../../models/linked-task-response-dto/linked-task-response-dto-module';
 import { TaskPriority } from '../../models/task-priority';
 import { TaskStatus } from '../../models/task-status';
+import { TaskcollaboratorDto } from '../../models/taskcollaborator-dto/taskcollaborator-dto.model';
 import { TaskdtoModel } from '../../models/taskdto.model';
 import { UserResponseDtoModule } from '../../models/user-response-dto/user-response-dto-module';
 import { TaskService } from '../../services/task.service';
+import { ConfirmationDeleteModal } from '../confirmation-delete-modal/confirmation-delete-modal';
 
 @Component({
   selector: 'app-task-detail',
-  imports: [DatePipe, RouterLink, ReactiveFormsModule],
+  imports: [DatePipe, RouterLink, ReactiveFormsModule, ConfirmationDeleteModal],
   templateUrl: './task-detail.html',
   styleUrl: './task-detail.css',
 })
@@ -27,13 +30,18 @@ export class TaskDetail {
   @Input() id!: string;
 
   task = signal<TaskdtoModel | null>(null);
-  linkedTasks = signal<TaskdtoModel[]>([]);
+  linkedRelations = signal<LinkedTaskResponseDtoModule[]>([]);
   error = signal<string | null>(null);
 
   showCollaboratorForm = signal(false);
   collaboratorFeedback = signal<string | null>(null);
   collaboratorError = signal<string | null>(null);
   availableUsers = signal<UserResponseDtoModule[]>([]);
+
+  showRemoveCollaboratorModal = signal(false);
+  selectedCollaboratorToRemove = signal<TaskcollaboratorDto | null>(null);
+  linkedFeedback = signal<string | null>(null);
+  linkedWarning = signal<string | null>(null);
 
   readonly TaskStatus = TaskStatus;
   readonly FormTaskType = FormTaskType;
@@ -72,23 +80,42 @@ export class TaskDetail {
   }
 
   private loadLinkedTasks(id: number): void {
-    this.taskService.getLinkedTasks(id).subscribe({
-      next: (tasks) => this.linkedTasks.set(tasks),
-      error: () => this.linkedTasks.set([]),
+    this.taskService.getLinkedRelations(id).subscribe({
+      next: (relations) => this.linkedRelations.set(relations),
+      error: () => this.linkedRelations.set([]),
     });
   }
 
-  removeCollaborator(taskId: number, userId: number): void {
+  openRemoveCollaboratorModal(collaborator: TaskcollaboratorDto): void {
     this.collaboratorError.set(null);
     this.collaboratorFeedback.set(null);
+    this.selectedCollaboratorToRemove.set(collaborator);
+    this.showRemoveCollaboratorModal.set(true);
+  }
 
-    this.taskService.removeCollaborator(taskId, userId).subscribe({
+  closeRemoveCollaboratorModal(): void {
+    this.showRemoveCollaboratorModal.set(false);
+    this.selectedCollaboratorToRemove.set(null);
+  }
+
+  confirmRemoveCollaborator(): void {
+    const task = this.task();
+    const collaborator = this.selectedCollaboratorToRemove();
+
+    if (!task || !collaborator) {
+      this.closeRemoveCollaboratorModal();
+      return;
+    }
+
+    this.taskService.removeCollaborator(task.id, collaborator.userId).subscribe({
       next: () => {
         this.collaboratorFeedback.set('Colaborador eliminado correctamente.');
-        this.loadTask(taskId);
+        this.closeRemoveCollaboratorModal();
+        this.loadTask(task.id);
       },
       error: () => {
         this.collaboratorError.set('No se ha podido eliminar el colaborador.');
+        this.closeRemoveCollaboratorModal();
       },
     });
   }
@@ -143,28 +170,20 @@ export class TaskDetail {
   }
 
   private loadAvailableUsers(): void {
-    this.taskService.getUsers().subscribe({
+    const task = this.task();
+
+    if (!task) {
+      this.availableUsers.set([]);
+      return;
+    }
+
+    this.taskService.getAvailableCollaborators(task.id).subscribe({
       next: (users) => {
-        const task = this.task();
-
-        if (!task) {
-          this.availableUsers.set(users);
-          return;
-        }
-
-        const currentCollaboratorIds = new Set(
-          task.taskCollaborators?.map((collaborator) => collaborator.userId) ?? [],
-        );
-
-        const available = users.filter((user) => {
-          return user.isActive && user.id !== task.userId && !currentCollaboratorIds.has(user.id);
-        });
-
-        this.availableUsers.set(available);
+        this.availableUsers.set(users);
       },
       error: () => {
         this.availableUsers.set([]);
-        this.collaboratorError.set('No se han podido cargar los usuarios.');
+        this.collaboratorError.set('No se han podido cargar los usuarios disponibles.');
       },
     });
   }
@@ -209,6 +228,22 @@ export class TaskDetail {
     return `${user.userName} ${user.userLastName} — ${user.userEmail}`;
   }
 
+  collaboratorLabel(collaborator: TaskcollaboratorDto | null): string {
+    if (!collaborator) {
+      return '';
+    }
+
+    if (collaborator.userName && collaborator.userEmail) {
+      return `${collaborator.userName} — ${collaborator.userEmail}`;
+    }
+
+    if (collaborator.userName) {
+      return collaborator.userName;
+    }
+
+    return collaborator.userEmail ?? `Usuario #${collaborator.userId}`;
+  }
+
   collaboratorRoleLabel(role: CollaboratorRole | number | undefined): string {
     switch (Number(role)) {
       case CollaboratorRole.TaskAdministrator:
@@ -221,6 +256,57 @@ export class TaskDetail {
         return 'Sin rol';
     }
   }
+
+  getRelatedTask(relation: LinkedTaskResponseDtoModule): TaskdtoModel | null {
+    const currentTaskId = this.task()?.id;
+
+    if (!currentTaskId) {
+      return relation.dependsOnTask ?? relation.task ?? null;
+    }
+
+    return relation.taskId === currentTaskId
+      ? (relation.dependsOnTask ?? null)
+      : (relation.task ?? null);
+  }
+
+  canDeleteLinkedRelation(relation: LinkedTaskResponseDtoModule): boolean {
+    return !relation.dependsOnTask || relation.dependsOnTask.taskStatus === TaskStatus.Completed;
+  }
+
+  deleteLinkedRelation(relation: LinkedTaskResponseDtoModule): void {
+    const currentTaskId = this.task()?.id;
+
+    if (!currentTaskId) {
+      return;
+    }
+
+    this.linkedFeedback.set(null);
+    this.linkedWarning.set(null);
+
+    if (!this.canDeleteLinkedRelation(relation)) {
+      const dependencyTitle = relation.dependsOnTask?.title ?? `#${relation.dependsOnTaskId}`;
+
+      this.linkedWarning.set(
+        `No puedes borrar esta relación todavía. La tarea de la que depende (${dependencyTitle}) debe estar completada antes de quitar el vínculo.`,
+      );
+
+      return;
+    }
+
+    this.taskService.deleteLinkedRelation(currentTaskId, relation.id).subscribe({
+      next: () => {
+        this.linkedFeedback.set('Relación vinculada eliminada correctamente.');
+        this.loadLinkedTasks(currentTaskId);
+      },
+      error: (err) => {
+        const message =
+          err?.error?.message ?? err?.error ?? 'No se ha podido eliminar la relación vinculada.';
+
+        this.linkedWarning.set(message);
+      },
+    });
+  }
+
   volver(): void {
     this.router.navigate(['/tasks']);
   }

@@ -28,6 +28,22 @@ export class TaskCard implements OnChanges {
     return this.task.parentCompositeTaskTitle?.trim() || null;
   }
 
+  get deleteBlockedReason(): string | null {
+    if (this.task.hasCollaborators || (this.task.collaboratorsCount ?? 0) > 0) {
+      return 'No se puede eliminar porque tiene colaboradores. Primero elimina los colaboradores desde el detalle de la tarea.';
+    }
+
+    if (this.task.hasLinkedRelations || (this.task.linkedRelationsCount ?? 0) > 0) {
+      return 'No se puede eliminar porque tiene dependencias o vinculaciones. Primero elimina esa vinculación desde el detalle de la tarea.';
+    }
+
+    return null;
+  }
+
+  get canDeleteTask(): boolean {
+    return this.deleteBlockedReason === null;
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['task']) {
       const prevTask = changes['task'].previousValue;
@@ -63,6 +79,10 @@ export class TaskCard implements OnChanges {
   openDeleteModal(event?: MouseEvent): void {
     event?.stopPropagation();
     event?.preventDefault();
+
+    if (!this.canDeleteTask) {
+      return;
+    }
 
     this.showDeleteModal = true;
   }

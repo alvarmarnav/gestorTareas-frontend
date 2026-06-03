@@ -63,6 +63,12 @@ export class TaskService {
       recurringSeriesId: raw?.recurringSeriesId ?? null,
       parentCompositeTaskId: raw?.parentCompositeTaskId ?? null,
       linkedTaskOrder: raw?.linkedTaskOrder ?? null,
+      collaboratorsCount: Number(raw?.collaboratorsCount ?? 0),
+      hasCollaborators: Boolean(raw?.hasCollaborators ?? Number(raw?.collaboratorsCount ?? 0) > 0),
+      linkedRelationsCount: Number(raw?.linkedRelationsCount ?? 0),
+      hasLinkedRelations: Boolean(
+        raw?.hasLinkedRelations ?? Number(raw?.linkedRelationsCount ?? 0) > 0,
+      ),
       isCompleted: status === TaskStatus.Completed,
     } as TaskdtoModel;
   }
@@ -178,6 +184,12 @@ export class TaskService {
 
   getUsers(): Observable<UserResponseDtoModule[]> {
     return this.http.get<UserResponseDtoModule[]>(`${this.baseUrl}/users`);
+  }
+
+  getAvailableCollaborators(taskId: number): Observable<UserResponseDtoModule[]> {
+    return this.http.get<UserResponseDtoModule[]>(
+      `${this.baseUrl}/tasks/${taskId}/available-collaborators`,
+    );
   }
 
   addCollaborator(taskId: number, dto: CreateTaskcollaboratorDto): Observable<void> {
