@@ -119,27 +119,57 @@
       <span>Estás creando la tarea, recuerda añadir los colaboradores.</span>
     </div>
     }
+
+
+
+
+
     @case (FormTaskType.Linked) {
-    <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+    <div class="mb-5 grid grid-cols-1 gap-5 rounded-2xl border border-pink-200 bg-pink-50 p-4 md:grid-cols-2">
+
       <div>
-        <label for="dependsOnTaskId" class="mb-2 block text-sm font-semibold text-gray-700">Id de la tarea
-          padre*</label>
-        <input type="number" id="dependsOnTaskId"
-          class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          formControlName="dependsOnTaskId" />
-        <div>
-          <label for="linkedTaskOrder" class="mb-2 block text-sm font-semibold text-gray-700">Orden de
-            dependencia</label>
-          <input type="number" id="linkedTaskOrder"
-            class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            formControlName="linkedTaskOrder" />
+        <label for="dependsOnTaskId" class="mb-2 block text-sm font-semibold text-gray-700">
+          Vincular esta nueva tarea con *
+        </label>
+
+        <select id="dependsOnTaskId"
+          class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          formControlName="dependsOnTaskId">
+
+          <option [ngValue]="null">Selecciona una SimpleTask existente</option>
+
+          @for (task of availableLinkedTasks; track task.id) {
+          <option [ngValue]="task.id">
+            #{{ task.id }} · {{ task.title }}
+          </option>
+          }
+        </select>
+
+        @if (dependsOnTaskId?.invalid && dependsOnTaskId?.touched) {
+        <div class="mt-2 text-sm text-red-600">
+          Selecciona la tarea simple con la que quieres vincular la nueva tarea.
         </div>
-
-
+        }
       </div>
+
+      <div>
+        <label for="linkedTaskOrder" class="mb-2 block text-sm font-semibold text-gray-700">
+          Orden de dependencia
+        </label>
+
+        <input type="number" id="linkedTaskOrder" min="1"
+          class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          formControlName="linkedTaskOrder" />
+      </div>
+
+      <p class="text-sm text-pink-800 md:col-span-2">
+        Se creará una nueva tarea simple y quedará vinculada con la tarea existente seleccionada.
+      </p>
     </div>
     }
     }
+
+
     <div class="col">
       <label for="dueTime" class="mb-2 block text-sm font-semibold text-gray-700">{{ form.get('taskType')?.value ===
         FormTaskType.Recurring ? 'Fecha inicial *' : 'Fecha límite' }}</label>

@@ -74,16 +74,180 @@
     </div>
     }
 
-    @if (task.taskCollaborators?.length) {
-    <div class="mt-6">
-        <h2 class="mb-3 text-lg font-bold text-gray-900">Colaboradores</h2>
-        <div class="space-y-2">
-            @for (collaborator of task.taskCollaborators; track collaborator.userId) {
-            <div class="rounded-xl border border-gray-200 p-3 text-sm">
-                Usuario #{{ collaborator.userId }} — rol {{ collaborator.collaboratorRole }}
+    @if (task.taskType === FormTaskType.Collaborative) {
+    <div class="mt-6 rounded-2xl border border-orange-100 bg-orange-50 p-4">
+
+        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="text-lg font-bold text-orange-950">Colaboradores</h2>
+                <p class="text-sm text-orange-800">
+                    Gestiona los usuarios que participan en esta tarea colaborativa.
+                </p>
+            </div>
+
+            <button type="button" (click)="toggleCollaboratorForm()"
+                class="rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700">
+                {{ showCollaboratorForm() ? 'Cancelar' : 'Añadir colaborador' }}
+            </button>
+        </div>
+
+        @if (collaboratorFeedback()) {
+        <div class="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
+            {{ collaboratorFeedback() }}
+        </div>
+        }
+
+        @if (collaboratorError()) {
+        <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+            {{ collaboratorError() }}
+        </div>
+        }
+
+        @if (showCollaboratorForm()) {
+        <form [formGroup]="collaboratorForm" (ngSubmit)="addCollaborator(task.id)"
+            class="mb-4 grid grid-cols-1 gap-3 rounded-xl border border-orange-200 bg-white p-4 md:grid-cols-3">
+
+            <div>
+                <label for="collaboratorUserId" class="mb-2 block text-sm font-semibold text-gray-700">
+                    ID del usuario *
+                </label>
+
+                <input id="collaboratorUserId" type="number" min="1" formControlName="userId"
+                    class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+                    placeholder="Ej. 4" />
+
+                @if (collaboratorForm.controls.userId.invalid && collaboratorForm.controls.userId.touched) {
+                <p class="mt-2 text-sm text-red-600">Introduce un ID de usuario válido.</p>
+                }
+            </div>
+
+            <div>
+                <label for="collaboratorRole" class="mb-2 block text-sm font-semibold text-gray-700">
+                    Rol *
+                </label>
+
+                <select id="collaboratorRole" formControlName="collaboratorRole"
+                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100">
+                    <option [ngValue]="CollaboratorRole.TaskAdministrator">Administrador de tarea</option>
+                    <option [ngValue]="CollaboratorRole.Collaborator">Colaborador</option>
+                    <option [ngValue]="CollaboratorRole.Viewer">Visualizador</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit"
+                    class="w-full rounded-xl bg-orange-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-700">
+                    Guardar colaborador
+                </button>
+            </div>
+        </form>
+        }
+
+        @if (task.taskType === FormTaskType.Collaborative) {
+        <div class="mt-6 rounded-2xl border border-orange-100 bg-orange-50 p-4">
+
+            <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-orange-950">Colaboradores</h2>
+                    <p class="text-sm text-orange-800">
+                        Añade usuarios a esta tarea colaborativa.
+                    </p>
+                </div>
+
+                <button type="button" (click)="toggleCollaboratorForm()"
+                    class="rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700">
+                    {{ showCollaboratorForm() ? 'Cancelar' : 'Añadir colaborador' }}
+                </button>
+            </div>
+
+            @if (collaboratorFeedback()) {
+            <div
+                class="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
+                {{ collaboratorFeedback() }}
             </div>
             }
+
+            @if (collaboratorError()) {
+            <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                {{ collaboratorError() }}
+            </div>
+            }
+
+            @if (showCollaboratorForm()) {
+            <form [formGroup]="collaboratorForm" (ngSubmit)="addCollaborator(task.id)"
+                class="mb-4 grid grid-cols-1 gap-3 rounded-xl border border-orange-200 bg-white p-4 md:grid-cols-3">
+
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-gray-700">
+                        Usuario *
+                    </label>
+
+                    <select formControlName="userId"
+                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100">
+
+                        <option [ngValue]="null">Selecciona un usuario</option>
+
+                        @for (user of availableUsers(); track user.id) {
+                        <option [ngValue]="user.id">
+                            {{ userLabel(user) }}
+                        </option>
+                        }
+                    </select>
+
+                    @if (collaboratorForm.controls.userId.invalid && collaboratorForm.controls.userId.touched) {
+                    <p class="mt-2 text-sm text-red-600">Selecciona un usuario.</p>
+                    }
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-gray-700">
+                        Rol *
+                    </label>
+
+                    <select formControlName="collaboratorRole"
+                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100">
+
+                        <option [ngValue]="CollaboratorRole.TaskAdministrator">Administrador</option>
+                        <option [ngValue]="CollaboratorRole.Collaborator">Colaborador</option>
+                        <option [ngValue]="CollaboratorRole.Viewer">Visualizador</option>
+                    </select>
+                </div>
+
+                <div class="flex items-end">
+                    <button type="submit"
+                        class="w-full rounded-xl bg-orange-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-700">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+            }
+
+            @if (task.taskCollaborators?.length) {
+            <div class="space-y-2">
+                @for (collaborator of task.taskCollaborators; track collaborator.userId) {
+                <div class="rounded-xl border border-orange-100 bg-white p-3 text-sm">
+                    <p class="font-semibold text-gray-900">
+                        {{ collaborator.userName || ('Usuario #' + collaborator.userId) }}
+                    </p>
+                    <p class="text-gray-500">
+                        {{ collaborator.userEmail || 'Sin email' }}
+                        · {{ collaboratorRoleLabel(collaborator.collaboratorRole) }}
+                    </p>
+                </div>
+                }
+            </div>
+            } @else {
+            <p class="rounded-xl border border-dashed border-orange-200 bg-white p-4 text-sm text-orange-800">
+                Todavía no hay colaboradores asignados.
+            </p>
+            }
         </div>
+        }
+        @else {
+        <p class="rounded-xl border border-dashed border-orange-200 bg-white p-4 text-sm text-orange-800">
+            Sin colaboradores asignados.
+        </p>
+        }
     </div>
     }
 

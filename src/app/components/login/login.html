@@ -60,22 +60,24 @@
             </div>
             }
 
-            <div id="button" class="flex flex-col w-full my-5">
-              <div class="w-full py-4 bg-green-600 rounded-lg text-green-100">
-                <div class="flex flex-row items-center justify-center">
-                  <div class="mr-2">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
-                      </path>
-                    </svg>
-                  </div>
-                  <button type="submit" [disabled]="form.invalid" class="font-bold" (click)="onSubmit()">SignIn</button>
-                </div>
-              </div>
-              <div class="flex justify-evenly mt-5">
-                <a routerLink="/register" class="w-full text-center font-medium text-gray-500">Regístrate</a>
+            <div class="my-5 flex w-full flex-col">
+              <button type="button" (click)="onSubmit()" [disabled]="form.invalid"
+                class="flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-4 font-bold text-green-100 transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500">
+
+                <svg class="mr-2 h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
+                  </path>
+                </svg>
+
+                SignIn
+              </button>
+
+              <div class="mt-5 flex justify-evenly">
+                <a routerLink="/register" class="w-full text-center font-medium text-gray-500">
+                  Regístrate
+                </a>
               </div>
             </div>
           </form>

@@ -5,13 +5,16 @@ import { environment } from '../../Environments/environment';
 import { CreateCompositeTaskDto } from '../models/composite-task-dto/create-composite-task-dto.model';
 import { CreateCollaborativeTaskDto } from '../models/create-collaborativetask-dto.model';
 import { CreateTaskDto } from '../models/create-task-dto.model';
+import { CreateTaskcollaboratorDto } from '../models/create-taskcollaborator-dto/create-taskcollaborator-dto.model';
 import { FormTaskType } from '../models/formtasktype';
+import { LinkedTaskResponseDtoModule } from '../models/linked-task-response-dto/linked-task-response-dto-module';
 import { PaginationDto } from '../models/pagination-dto.model';
 import { CreateRecurringTaskDto } from '../models/recurring-task-dto/create-recurring-task-dto.model';
 import { CreateSubTaskDto } from '../models/sub-task-dto/create-sub-task-dto.model';
 import { TaskPriority } from '../models/task-priority';
 import { TaskStatus } from '../models/task-status';
 import { TaskdtoModel } from '../models/taskdto.model';
+import { UserResponseDtoModule } from '../models/user-response-dto/user-response-dto-module';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -135,13 +138,54 @@ export class TaskService {
   addLinkedRelation(
     taskId: number,
     dto: { dependsOnTaskId: number; linkedTaskOrder: number },
-  ): Observable<any> {
-    return this.http.post<TaskdtoModel>(`${this.baseUrl}/tasks/${taskId}/linkedRelation`, dto);
+  ): Observable<LinkedTaskResponseDtoModule> {
+    return this.http.post<LinkedTaskResponseDtoModule>(
+      `${this.baseUrl}/tasks/${taskId}/linkedRelation`,
+      dto,
+    );
   }
-  getLinkedTasks(taskId: number): Observable<TaskdtoModel[]> {
+  getLinkableTasks(taskId?: number): Observable<TaskdtoModel[]> {
+    const url = taskId
+      ? `${this.baseUrl}/tasks/${taskId}/linkable`
+      : `${this.baseUrl}/tasks/linkable`;
+    return this.http.get<any[]>(url).pipe(map((tasks) => this.normalizeTasks(tasks)));
+  }
+  getLinkedRelations(taskId: number): Observable<LinkedTaskResponseDtoModule[]> {
     return this.http
-      .get<any[]>(`${this.baseUrl}/tasks/${taskId}/linkable`)
-      .pipe(map((tasks) => this.normalizeTasks(tasks)));
+      .get<LinkedTaskResponseDtoModule[]>(`${this.baseUrl}/tasks/${taskId}/linked`)
+      .pipe(
+        map((relations) =>
+          (relations ?? []).map((relation) => ({
+            ...relation,
+            task: relation.task ? this.normalizeTask(relation.task) : null,
+            dependsOnTask: relation.dependsOnTask
+              ? this.normalizeTask(relation.dependsOnTask)
+              : null,
+          })),
+        ),
+      );
+  }
+
+  getLinkedTasks(taskId: number): Observable<TaskdtoModel[]> {
+    return this.getLinkedRelations(taskId).pipe(
+      map((relations) =>
+        relations
+          .map((relation) => (relation.taskId === taskId ? relation.dependsOnTask : relation.task))
+          .filter((task): task is TaskdtoModel => !!task),
+      ),
+    );
+  }
+
+  getUsers(): Observable<UserResponseDtoModule[]> {
+    return this.http.get<UserResponseDtoModule[]>(`${this.baseUrl}/users`);
+  }
+
+  addCollaborator(taskId: number, dto: CreateTaskcollaboratorDto): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/tasks/${taskId}/collaborators`, dto);
+  }
+
+  removeCollaborator(taskId: number, userId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/tasks/${taskId}/collaborators/${userId}`);
   }
   // PUT /api/tasks/:id — actualizar una task existente
   update(taskId: number, dto: Partial<CreateTaskDto>): Observable<void> {

@@ -8,6 +8,7 @@ import { CreateTaskDto } from '../../models/create-task-dto.model';
 import { FormTaskType } from '../../models/formtasktype';
 import { CreateRecurringTaskDto } from '../../models/recurring-task-dto/create-recurring-task-dto.model';
 import { TaskPriority } from '../../models/task-priority';
+import { TaskdtoModel } from '../../models/taskdto.model';
 import { TaskService } from '../../services/task.service';
 import { CreateSubtask } from '../create-subtask/create-subtask';
 @Component({
@@ -30,6 +31,9 @@ export class CreateTask {
   createdCompositeTaskId: number | null = null;
   formError = '';
 
+  baseLinkableTasks: TaskdtoModel[] = [];
+  availableLinkedTasks: TaskdtoModel[] = [];
+
   form = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
     taskDescription: [''],
@@ -37,6 +41,7 @@ export class CreateTask {
     taskType: this.fb.nonNullable.control<FormTaskType>(FormTaskType.Simple, [Validators.required]),
     priority: this.fb.nonNullable.control<TaskPriority>(TaskPriority.Normal, [Validators.required]),
     recurrenceRule: this.fb.control<number | null>(null),
+    linkedBaseTaskId: this.fb.control<number | null>(null),
     dependsOnTaskId: this.fb.control<number | null>(null),
     linkedTaskOrder: this.fb.control<number | null>(null),
     repeatUntilDate: this.fb.control<string | null>(null),
@@ -62,10 +67,11 @@ export class CreateTask {
           priority: Number(task.taskPriority) ?? (TaskPriority.Normal as TaskPriority),
           recurrenceRule: task.recurrenceRule ?? null,
         });
+
+        this.changeTaskType(this.form.controls.taskType.value ?? null);
       });
     }
 
-    //Escuchar el campo seleccionado
     this.form.controls.taskType.valueChanges.subscribe((type) => {
       this.changeTaskType(type ?? null);
     });
@@ -196,42 +202,56 @@ export class CreateTask {
     this.taskService.createCollaborative(dto).subscribe((createdTask) => {
       this.resetForm();
 
-      this.router.navigate(['/tasks']);
+      this.router.navigate(['/tasks', createdTask.id]);
     });
   }
 
   private createLinkedRelation(): void {
-    if (!this.taskId) {
-      this.formError =
-        'Crear una relación entre tareas solo puede hacerse si ya existen las tareas.';
-      return;
-    }
     const value = this.form.value;
+
     const dependsOnTaskId = Number(value.dependsOnTaskId);
-    const linkedTaskOrder = Number(value.linkedTaskOrder);
+    const linkedTaskOrder = Number(value.linkedTaskOrder ?? 1);
 
     if (!dependsOnTaskId || dependsOnTaskId <= 0) {
-      this.form.get('dependsOnTaskId')?.markAsTouched();
+      this.form.controls.dependsOnTaskId.markAsTouched();
+      this.formError = 'Selecciona la tarea simple con la que quieres vincular la nueva tarea.';
       return;
     }
 
-    if (!linkedTaskOrder || linkedTaskOrder <= 0) {
-      this.form.get('linkedTaskOrder')?.markAsTouched();
-      return;
-    }
+    const dto: CreateTaskDto = {
+      title: value.title ?? '',
+      taskDescription: value.taskDescription ?? '',
+      dueTime: this.toIsoDateOrNull(value.dueTime),
+      priority: Number(value.priority ?? TaskPriority.Normal) as TaskPriority,
+    };
 
-    this.taskService
-      .addLinkedRelation(this.taskId, {
-        dependsOnTaskId,
-        linkedTaskOrder,
-      })
-      .subscribe(() => {
-        this.router.navigate(['/tasks']);
-      });
+    this.taskService.create(dto).subscribe({
+      next: (createdTask) => {
+        this.taskService
+          .addLinkedRelation(createdTask.id, {
+            dependsOnTaskId,
+            linkedTaskOrder,
+          })
+          .subscribe({
+            next: () => {
+              this.resetForm();
+              this.router.navigate(['/tasks', createdTask.id]);
+            },
+            error: () => {
+              this.formError =
+                'La tarea se ha creado, pero no se ha podido crear la relación vinculada.';
+            },
+          });
+      },
+      error: () => {
+        this.formError = 'No se ha podido crear la tarea vinculada.';
+      },
+    });
   }
 
   changeTaskType(type: FormTaskType | null): void {
     this.clearDynamicValidators();
+    this.restoreBaseValidators();
 
     switch (type) {
       case FormTaskType.Recurring:
@@ -262,13 +282,13 @@ export class CreateTask {
 
       case FormTaskType.Linked:
         this.form.controls.dependsOnTaskId.setValidators([Validators.required, Validators.min(1)]);
-
         this.form.controls.linkedTaskOrder.setValidators([Validators.required, Validators.min(1)]);
 
         if (!this.form.controls.linkedTaskOrder.value) {
           this.form.controls.linkedTaskOrder.setValue(1);
         }
 
+        this.loadLinkedTaskOptions();
         break;
 
       case FormTaskType.Simple:
@@ -277,16 +297,40 @@ export class CreateTask {
       default:
         break;
     }
-    this.form.controls.recurrenceRule.updateValueAndValidity();
-    this.form.controls.dependsOnTaskId.updateValueAndValidity();
-    this.form.controls.linkedTaskOrder.updateValueAndValidity();
-    this.form.controls.repeatUntilDate.updateValueAndValidity();
-    this.form.controls.maxOcurrences.updateValueAndValidity();
-    this.form.controls.dueTime.updateValueAndValidity();
+    this.updateDynamicValidity();
+    this.form.controls.title.updateValueAndValidity();
+    this.form.controls.linkedBaseTaskId.updateValueAndValidity();
+  }
+
+  private restoreBaseValidators(): void {
+    this.form.controls.title.setValidators([
+      Validators.required,
+      Validators.minLength(3),
+      Validators.maxLength(30),
+    ]);
+  }
+
+  private loadLinkedTaskOptions(): void {
+    this.taskService.getLinkableTasks(this.taskId ?? undefined).subscribe((tasks) => {
+      this.availableLinkedTasks = tasks;
+    });
+  }
+
+  private loadAvailableLinkedTasks(baseTaskId: number | null): void {
+    if (!baseTaskId) {
+      this.availableLinkedTasks = [];
+      this.form.controls.dependsOnTaskId.setValue(null);
+      return;
+    }
+
+    this.taskService.getLinkableTasks(baseTaskId).subscribe((tasks) => {
+      this.availableLinkedTasks = tasks;
+    });
   }
 
   private clearDynamicValidators(): void {
     this.form.controls.recurrenceRule.clearValidators();
+    this.form.controls.linkedBaseTaskId.clearValidators();
     this.form.controls.dependsOnTaskId.clearValidators();
     this.form.controls.linkedTaskOrder.clearValidators();
     this.form.controls.repeatUntilDate.clearValidators();
@@ -295,12 +339,21 @@ export class CreateTask {
     this.form.controls.dueTime.setValidators([futureDateValidator()]);
 
     this.form.controls.recurrenceRule.setValue(null);
+    this.form.controls.linkedBaseTaskId.setValue(null, { emitEvent: false });
     this.form.controls.dependsOnTaskId.setValue(null);
     this.form.controls.linkedTaskOrder.setValue(null);
     this.form.controls.repeatUntilDate.setValue(null);
     this.form.controls.maxOcurrences.setValue(null);
 
+    this.baseLinkableTasks = [];
+    this.availableLinkedTasks = [];
+
+    this.updateDynamicValidity();
+  }
+
+  private updateDynamicValidity(): void {
     this.form.controls.recurrenceRule.updateValueAndValidity();
+    this.form.controls.linkedBaseTaskId.updateValueAndValidity();
     this.form.controls.dependsOnTaskId.updateValueAndValidity();
     this.form.controls.linkedTaskOrder.updateValueAndValidity();
     this.form.controls.repeatUntilDate.updateValueAndValidity();
@@ -316,6 +369,7 @@ export class CreateTask {
       taskType: FormTaskType.Simple,
       priority: TaskPriority.Normal,
       recurrenceRule: null,
+      linkedBaseTaskId: null,
       dependsOnTaskId: null,
       linkedTaskOrder: null,
       repeatUntilDate: null,
@@ -335,6 +389,9 @@ export class CreateTask {
   get recurrenceRule() {
     return this.form.controls.recurrenceRule;
   }
+  get linkedBaseTaskId() {
+    return this.form.controls.linkedBaseTaskId;
+  }
   get dependsOnTaskId() {
     return this.form.controls.dependsOnTaskId;
   }
@@ -347,6 +404,7 @@ export class CreateTask {
   get maxOcurrences() {
     return this.form.controls.maxOcurrences;
   }
+
   cancel(): void {
     this.router.navigate(['/tasks']);
   }
